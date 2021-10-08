@@ -23,8 +23,8 @@ setup(
     author_email='s.specht@ijm-online.de',
     license='MIT',
     packages=[
-        "ijmrobopy",
-        "ijmrobopy/ftrobopy"
+        "ijmfttxt",
+        "ijmfttxt/ftrobopy"
     ],
     install_requires=[
         'pynput',
