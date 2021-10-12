@@ -90,3 +90,25 @@ class Apds:
     @classmethod
     def get_proximity(cls):
         return cls._read(PDATA)
+
+
+    @classmethod
+    def enable_light(cls, interrupt=False):
+        cls._set(CONTROL, AGAIN_DEFAULT, mask=AGAIN_MASK)
+        cls._set(ENABLE, ENABLE_AIEN, enable=interrupt)
+        cls._set(ENABLE, ENABLE_PON, enable=True)
+        cls._set(ENABLE, ENABLE_AEN, enable=True)
+
+
+    @classmethod
+    def disable_light(cls, interrupt=False):
+        if interrupt:
+            cls._set(ENABLE, ENABLE_AIEN, False)
+        cls._set(ENABLE, ENABLE_AEN, False)
+    
+
+    @classmethod
+    def get_rgbc(cls):
+        return cls._read(CDATAL, register_len=2, data_len=3)
+
+        
