@@ -6,8 +6,8 @@ from .constants import *
 
 
 class Apds:
-    _TXT: ftrobopy.ftTXT
-
+    _TXT: ftrobopy.ftTXT = None
+    
     @classmethod
     def _write(cls, register:int, data:int, debug=False)-> bool:
         if cls._TXT.i2c_write(ADR, register, data, debug):
@@ -30,43 +30,44 @@ class Apds:
     @classmethod
     def _set(cls, register:int, data:int, mask:int=0, enable:bool=True):
         if mask != 0:
-            res = cls._read(register)
+            res = cls._read(register)[0]
             val = (res&mask) | data
             return cls._write(register, val)
-        elif enable:
-            res = cls._read(register)
-            val = res|data
-            return cls._write(register, val)
-        elif not enable:
-            res = cls._read(register)
-            val = res^data
-            return cls._write(register, val)
         else:
-            return False
-
+            res = cls._read(register)[0]
+            bit = res & data
+            if bit != 0 and enable == False:
+                val = res ^ data
+            elif bit == 0 and enable == True:
+                val = res | data
+            else:
+                return False 
+            print(res, data, val)
+            return cls._write(register, val)
 
     @classmethod
     def init(cls):
-        if cls._read(ID) != ID_VALUE:
+        if cls._read(ID)[0] != ID_VALUE:
             return False
+        print("init")
         cls._write(ENABLE, OFF)
         cls._write(ATIME, ATIME_DEFAULT)
-        cls._write(WTIME, WTIME_DEFAULT)       
-        cls._write(PPULSE, PPULSE_DEFAULT)     
+        cls._write(WTIME, WTIME_DEFAULT)
+        cls._write(PPULSE, PPULSE_DEFAULT)
         cls._write(CONFIG1, CONFIG1_DEFAULT)
-        cls._write(CONTROL, LDRIVE_DEFAULT|PGAIN_DEFAULT|AGAIN_DEFAULT)     
-        cls._write(PILT, PILT_DEFAULT)   
-        cls._write(PIHT, PIHT_DEFAULT)      
+        cls._write(CONTROL, LDRIVE_DEFAULT|PGAIN_DEFAULT|AGAIN_DEFAULT)
+        cls._write(PILT, PILT_DEFAULT)
+        cls._write(PIHT, PIHT_DEFAULT)
         cls._write(AILTL, AILT_DEFAULT)
         cls._write(AIHTL, AIHT_DEFAULT)
-        cls._write(CONFIG2, CONFIG2_DEFAULT)        
+        cls._write(CONFIG2, CONFIG2_DEFAULT)
         cls._write(CONFIG3, CONFIG3_DEFAULT)
         cls._write(GPENTH, GPENTH_DEFAULT)
         cls._write(GEXTH, GEXTH_DEFAULT)
         cls._write(GCONF1, GCONF1_DEFAULT)
         cls._write(GCONF2, GGAIN_DEFAULT|GLDRIVE_DEFAULT|GWTIME_DEFAULT)
         cls._write(GPULSE, GPULSE_DEFAULT)
-        cls._write(GCONF3, GCONF3_DEFAULT)                
+        cls._write(GCONF3, GCONF3_DEFAULT)
         return True
     
 
