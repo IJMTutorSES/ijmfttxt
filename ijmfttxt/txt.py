@@ -333,9 +333,7 @@ class TXT(ftrobopy.ftrobopy):
             @classmethod
             def get_gesture(cls) -> int:
                 fifo_level = 0
-                bytes_read = 0
                 fifo_data = None
-                gstatus = 0
                 motion = "None"
                 
                 if not cls._valid():
@@ -358,6 +356,7 @@ class TXT(ftrobopy.ftrobopy):
                                     cls.total_gestures += 1
                             cls._processData()
                             cls._decodeGesture()
+                            print(cls.gesture_motion)
                             cls.index = 0
                             cls.total_gestures = 0
                     else:
