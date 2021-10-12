@@ -25,8 +25,8 @@ class Apds:
     far_count = 0
     state = 0
     THRESHOLD = 10
-    SENS1 = 50
-    SENS2 = 20
+    SENS1 = 30
+    SENS2 = 50
 
     @classmethod
     def _write(cls, register:int, data:int, debug=False)-> bool:
@@ -80,6 +80,7 @@ class Apds:
         cls._write(PIHT, PIHT_DEFAULT)
         cls._write(AILTL, AILT_DEFAULT)
         cls._write(AIHTL, AIHT_DEFAULT)
+        cls._write(PERS, PERS_DEFAULT)
         cls._write(CONFIG2, CONFIG2_DEFAULT)
         cls._write(CONFIG3, CONFIG3_DEFAULT)
         cls._write(GPENTH, GPENTH_DEFAULT)
@@ -189,12 +190,12 @@ class Apds:
         
         while True:
             time.sleep(0.03)
-            gstatus = cls._read(GSTATUS)
+            gstatus = cls._read(GSTATUS)[0]
             if (gstatus & GSTATUS_GVALID) == GSTATUS_GVALID:
-                fifo_level = cls._read(GFLVL)
+                fifo_level = cls._read(GFLVL)[0]
                 print(f"{fifo_level=}")
                 if fifo_level > 0:
-                    fifo_data = cls._read(GFIFO)
+                    fifo_data = cls._read(GFIFO, data_len=4*fifo_level)
                     bytes_read = len(fifo_data)
                     if bytes_read >= 4:
                         for i in range(0, bytes_read, 4):
@@ -253,10 +254,13 @@ class Apds:
                     l_last = cls.gesdata_left[i]
                     r_last = cls.gesdata_right[i]
                     break
-        ud_ratio_first = ((u_first - d_first) * 100) / (u_first + d_first)
-        lr_ratio_first = ((l_first - r_first) * 100) / (l_first + r_first)
-        ud_ratio_last = ((u_last - d_last) * 100) / (u_last + d_last)
-        lr_ratio_last = ((l_last - r_last) * 100) / (l_last + r_last)
+        try:
+            ud_ratio_first = ((u_first - d_first) * 100) / (u_first + d_first)
+            lr_ratio_first = ((l_first - r_first) * 100) / (l_first + r_first)
+            ud_ratio_last = ((u_last - d_last) * 100) / (u_last + d_last)
+            lr_ratio_last = ((l_last - r_last) * 100) / (l_last + r_last)
+        except ZeroDivisionError:
+            return False
         ud_delta = ud_ratio_last - ud_ratio_first
         lr_delta = lr_ratio_last - lr_ratio_first
         cls.ud_delta += ud_delta
@@ -300,39 +304,40 @@ class Apds:
     @classmethod
     def decode_gesture(cls):
         if cls.state == "near":
-            cls.gesture_motion = "NEAR"
+            cls.gesmotion = "NEAR"
             return True
         elif cls.state == "far":
-            cls.gesture_motion = "FAR"
+            cls.gesmotion = "FAR"
             return True
+        print(f"{cls.ud_count=}; {cls.lr_count=}")
         if cls.ud_count == -1 and cls.lr_count == 0:
-            cls.gesture_motion = "UP"
+            cls.gesmotion = "UP"
         elif cls.ud_count == 1 and cls.lr_count == 0:
-            cls.gesture_motion = "DOWN"
+            cls.gesmotion = "DOWN"
         elif cls.ud_count == 0 and cls.lr_count == 1:
-            cls.gesture_motion == "RIGHT"
+            cls.gesmotion == "RIGHT"
         elif cls.ud_count == 0 and cls.lr_count == -1:
-            cls.gesture_motion == "LEFT"
+            cls.gesmotion == "LEFT"
         elif cls.ud_count == -1 and cls.lr_count == 1:
             if abs(cls.ud_delta) > abs(cls.lr_delta):
-                cls.gesture_motion = "UP"
+                cls.gesmotion = "UP"
             else:
-                cls.gesture_motion = "RIGHT"
+                cls.gesmotion = "RIGHT"
         elif cls.ud_count == 1 and cls.lr_count == -1:
             if abs(cls.ud_delta) > abs(cls.lr_delta):
-                cls.gesture_motion = "DOWN"
+                cls.gesmotion = "DOWN"
             else:
-                cls.gesture_motion = "LEFT"
+                cls.gesmotion = "LEFT"
         elif cls.ud_count == -1 and cls.lr_count == -1:
             if abs(cls.ud_delta) > abs(cls.lr_delta):
-                cls.gesture_motion = "UP"
+                cls.gesmotion = "UP"
             else:
-                cls.gesture_motion = "LEFT"
+                cls.gesmotion = "LEFT"
         elif cls.ud_count == 1 and cls.lr_count == 1:
             if abs(cls.ud_delta) > abs(cls.lr_delta):
-                cls.gesture_motion = "DOWN"
+                cls.gesmotion = "DOWN"
             else:
-                cls.gesture_motion = "RIGHT"
+                cls.gesmotion = "RIGHT"
         else:
             return False
         return True       
