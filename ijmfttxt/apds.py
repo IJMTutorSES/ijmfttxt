@@ -18,11 +18,11 @@ class Apds:
 
     @classmethod
     def _read(cls, register:int, register_len:int = 1, data_len:int = 1, debug = False)-> Union[Tuple[int], ByteString]:
-        buffer = cls._TXT.i2c_read(ADR, register, register_len, data_len, debug)
+        buffer = cls._TXT.i2c_read(ADR, register, data_len=data_len, debug=debug)
         if register_len == 1:
             return struct.unpack('<'+'B'*data_len, buffer)
         elif register_len == 2:
-            return struct.unpack('<'+'H'*data_len, buffer)
+            return struct.unpack('<'+'H'*(data_len//2), buffer)
         else:
             return buffer
 
@@ -90,8 +90,8 @@ class Apds:
     @classmethod
     def get_proximity(cls):
         return cls._read(PDATA)
-
-
+    
+    
     @classmethod
     def enable_light(cls, interrupt=False):
         cls._set(CONTROL, AGAIN_DEFAULT, mask=AGAIN_MASK)
@@ -109,6 +109,4 @@ class Apds:
 
     @classmethod
     def get_rgbc(cls):
-        return cls._read(CDATAL, register_len=2, data_len=3)
-
-        
+        return cls._read(CDATAL, register_len=2, data_len=8)
