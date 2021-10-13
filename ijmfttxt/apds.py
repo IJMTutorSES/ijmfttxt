@@ -25,7 +25,7 @@ class Apds:
     far_count = 0
     state = 0
     THRESHOLD = 10
-    SENS1 = 30
+    SENS1 = 15
     SENS2 = 50
 
     @classmethod
@@ -138,7 +138,7 @@ class Apds:
         cls.reset_gesture_param()
         cls._write(WTIME, WTIME_RESET)
         cls._write(PPULSE, G_PPULSE_DEFAULT)
-        cls._set(CONFIG2, LEDBOOST_300, mask=LEDBOOST_MASK)
+        cls._set(CONFIG2, LEDBOOST_200, mask=LEDBOOST_MASK)
         cls._set(GCONF4, GCONF4_GIEN, enable=interrupt)
         cls._set(GCONF4, GCONF4_GMODE, enable=True)
         cls._set(ENABLE, ENABLE_PON, enable=True)
