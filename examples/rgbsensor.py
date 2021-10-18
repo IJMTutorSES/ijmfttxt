@@ -1,13 +1,20 @@
 import ijmrobopy
 
+#Initialize and setup Connection to TXT Controller
 TXT = ijmrobopy.TXT("auto")
 
-rgb_sensor = TXT.rgb_sensor()
-rgb_sensor.turn_on()
+#get the rgb sensor connected via i2c-connection
+rgb_sensor = TXT.rgbSensor()
 
+#turn the rgb sensor on
+rgb_sensor.turnOn()
+
+#print for one minute every second the red, green and blue data
 for _ in range(60):
-    print("rot", rgb_sensor.get_red())
-    print("grün", rgb_sensor.get_green())
-    print("blau", rgb_sensor.get_blue())
+    print("rot", rgb_sensor.getRed())
+    print("grün", rgb_sensor.getGreen())
+    print("blau", rgb_sensor.getBlue())
     ijmrobopy.wait(1)
-rgb_sensor.turn_off()
+
+#turn the rgb sensor off
+rgb_sensor.turnOff()

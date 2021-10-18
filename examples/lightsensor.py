@@ -1,11 +1,18 @@
 import ijmrobopy
 
+#Initialize and setup Connection to TXT Controller
 TXT = ijmrobopy.TXT("auto")
 
-light_sensor = TXT.light_sensor()
-light_sensor.turn_on()
+#Get light sensor connect via i2c-connection
+light_sensor = TXT.lightSensor()
 
+#Turn the light sensor on 
+light_sensor.turnOn()
+
+#print for one minute every second the Brightness
 for _ in range(60):
-    print(light_sensor.get_brightness())
+    print(light_sensor.getBrightness())
     ijmrobopy.wait(1)
-light_sensor.turn_off()
+
+#turn the light sensor off
+light_sensor.turnOff()

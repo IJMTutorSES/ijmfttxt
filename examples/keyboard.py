@@ -1,5 +1,6 @@
 import ijmrobopy
 
+#Initialize and setup Connection to TXT Controller
 TXT = ijmrobopy.TXT("auto")
 KEYBOARD = ijmrobopy.Keyboard()
 

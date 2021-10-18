@@ -6,7 +6,7 @@ def readme():
 
 setup(
     name = "ijmfttxt",
-    version= "1.1",
+    version= "1.2",
     description= "Erweiterung zu ftrobopy",
     long_description= readme(),
     classifiers=[

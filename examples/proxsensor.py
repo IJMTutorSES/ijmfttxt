@@ -1,11 +1,18 @@
 import ijmrobopy
 
+#
 TXT = ijmrobopy.TXT("192.168.7.2")
 
-light_sensor = TXT.light_sensor()
-light_sensor.turn_on()
+#Get proximity sensor connected via i2c-connection
+proximity_sensor = TXT.proximitySensor()
 
+#turn proximity sensor on
+proximity_sensor.turnOn()
+
+#print for one minute every second the distance
 for _ in range(60):
-    print(light_sensor.get_distance())
+    print(proximity_sensor.getDistance())
     ijmrobopy.wait(1)
-light_sensor.turn_off()
+
+#turn the proximity sensor off
+proximity_sensor.turnOff()

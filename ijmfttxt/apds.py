@@ -93,18 +93,15 @@ class Apds:
     
 
     @classmethod
-    def enable_proximity(cls, interrupt=False):
+    def enable_proximity(cls):
         cls._set(CONTROL, PGAIN_DEFAULT, mask=PGAIN_MASK)
         cls._set(CONTROL, LDRIVE_DEFAULT, mask=LDRIVE_MASK)
-        cls._set(ENABLE, ENABLE_PIEN, enable=interrupt)
         cls._set(ENABLE, ENABLE_PON, enable=True)
         cls._set(ENABLE, ENABLE_PEN, enable=True)
     
 
     @classmethod
-    def disable_proximity(cls, interrupt=False):
-        if interrupt:
-            cls._set(ENABLE, ENABLE_PIEN, False)
+    def disable_proximity(cls):
         cls._set(ENABLE, ENABLE_PEN, False)
     
 
@@ -114,17 +111,14 @@ class Apds:
     
     
     @classmethod
-    def enable_light(cls, interrupt=False):
+    def enable_light(cls):
         cls._set(CONTROL, AGAIN_DEFAULT, mask=AGAIN_MASK)
-        cls._set(ENABLE, ENABLE_AIEN, enable=interrupt)
         cls._set(ENABLE, ENABLE_PON, enable=True)
         cls._set(ENABLE, ENABLE_AEN, enable=True)
 
 
     @classmethod
-    def disable_light(cls, interrupt=False):
-        if interrupt:
-            cls._set(ENABLE, ENABLE_AIEN, False)
+    def disable_light(cls):
         cls._set(ENABLE, ENABLE_AEN, False)
     
 
@@ -134,12 +128,12 @@ class Apds:
 
 
     @classmethod
-    def enable_gesture(cls, interrupt=False):
+    def enable_gesture(cls):
         cls.reset_gesture_param()
         cls._write(WTIME, WTIME_RESET)
         cls._write(PPULSE, G_PPULSE_DEFAULT)
         cls._set(CONFIG2, LEDBOOST_200, mask=LEDBOOST_MASK)
-        cls._set(GCONF4, GCONF4_GIEN, enable=interrupt)
+        cls._set(GCONF4, GCONF4_GIEN, True)
         cls._set(GCONF4, GCONF4_GMODE, enable=True)
         cls._set(ENABLE, ENABLE_PON, enable=True)
         cls._set(ENABLE, ENABLE_WEN, enable=True)
@@ -148,10 +142,9 @@ class Apds:
 
 
     @classmethod
-    def disable_gesture(cls, interrupt = False):
+    def disable_gesture(cls):
         cls.reset_gesture_param()
-        if interrupt:
-            cls._set(GCONF4, GCONF4_GIEN, enable=False)
+        cls._set(GCONF4, GCONF4_GIEN, enable=False)
         cls._set(GCONF4, GCONF4_GMODE, enable=False)
         cls._set(ENABLE, ENABLE_GEN, enable=False)
 
@@ -165,6 +158,15 @@ class Apds:
         else:
             return True
     
+
+    @classmethod
+    def is_gesture_interrupt(cls):
+        res = cls._read(STATUS)[0]
+        val = res & STATUS_GINT
+        if val == 0:
+            return False
+        else:
+            return True
 
     @classmethod
     def reset_gesture_param(cls):
