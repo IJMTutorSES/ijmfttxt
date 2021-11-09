@@ -1,5 +1,6 @@
 from . import ftrobopy
 from .apds import Apds
+from . import color
 
 import time
 import struct
@@ -92,6 +93,13 @@ class TXT(ftrobopy.ftrobopy):
                     return Apds.get_rgbc()[1:]
                 except TypeError:
                     return (-1, -1, -1)
+            
+            @staticmethod
+            def getColor():
+                values = Apds.get_rgbc()[1:]
+                c_color = color.corrctedColor(*values)
+                return color.guessColor(c_color)
+            
         return _rgb
 
     @staticmethod
