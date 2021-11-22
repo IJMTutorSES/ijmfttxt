@@ -98,7 +98,7 @@ class TXT(ftrobopy.ftrobopy):
             def getColor():
                 values = Apds.get_rgbc()[1:]
                 c_color = color.correctedColor(*values)
-                return color.guessColor(c_color)
+                return color.guessColor(*c_color)
             
         return _rgb
 
