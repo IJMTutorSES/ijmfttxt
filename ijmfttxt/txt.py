@@ -2,19 +2,6 @@ from . import ftrobopy
 from .apds import Apds
 from . import color
 
-import time
-import struct
-
-
-def wait(sec: int):
-    """halte das Programm für eine gewisse Zeit an
-
-    Args:
-        sec (int): Zeit die das Programm pausiert in Sekunden
-    """
-    time.sleep(sec)
-
-
 class TXT(ftrobopy.ftrobopy):
 
     def __init__(self, mode):
@@ -35,6 +22,7 @@ class TXT(ftrobopy.ftrobopy):
             @staticmethod
             def getDistance():
                 Apds.get_proximity()
+        return _prox
 
     @staticmethod
     def lightSensor():
@@ -67,38 +55,8 @@ class TXT(ftrobopy.ftrobopy):
                 Apds.disable_light()
 
             @staticmethod
-            def getRed():
-                try:
-                    return Apds.get_rgbc()[1]
-                except TypeError:
-                    return -1
-
-            @staticmethod
-            def getGreen():
-                try:
-                    return Apds.get_rgbc()[2]
-                except TypeError:
-                    return -1
-
-            @staticmethod
-            def getBlue():
-                try:
-                    return Apds.get_rgbc()[3]
-                except TypeError:
-                    return -1
-
-            @staticmethod
-            def getRGB():
-                try:
-                    return Apds.get_rgbc()[1:]
-                except TypeError:
-                    return (-1, -1, -1)
-            
-            @staticmethod
             def getColor():
-                values = Apds.get_rgbc()[1:]
-                c_color = color.correctedColor(*values)
-                return color.guessColor(*c_color)
+                return color.Color(*Apds.get_rgbc())
             
         return _rgb
 

@@ -11,9 +11,10 @@ rgb_sensor.turnOn()
 
 #print for one minute every second the red, green and blue data
 for _ in range(60):
-    print("rot", rgb_sensor.getRed())
-    print("grün", rgb_sensor.getGreen())
-    print("blau", rgb_sensor.getBlue())
+    color = rgb_sensor.getColor()
+    print("rot", color.r)
+    print("grün", color.g)
+    print("blau", color.b)
     ijmrobopy.wait(1)
 
 #turn the rgb sensor off
