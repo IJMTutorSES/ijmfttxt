@@ -16,7 +16,6 @@ class Keyboard:
 
     def _on_press(self, key: str):
         self._keys[self._convert_to_char(key)] = True
-        print(self._keys)
 
     def _on_release(self, key: str):
         self._keys[self._convert_to_char(key)] = False
