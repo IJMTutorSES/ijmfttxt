@@ -12,7 +12,7 @@ class Keyboard:
         try:
             return key.char
         except AttributeError:
-            return key
+            return str(key)[4:]
 
     def _on_press(self, key: str):
         self._keys[self._convert_to_char(key)] = True
@@ -21,8 +21,9 @@ class Keyboard:
         self._keys[self._convert_to_char(key)] = False
     
     def is_pressed(self, key: str) -> bool:
+        k = key.replace(" ", "").split("+")
         try:
-            return self._keys[key]
+            return all(map(lambda n: self._keys[n], k))
         except KeyError:
             return False
 
@@ -40,7 +41,6 @@ class Mouse:
     
     def _on_click(self, *args):
         self._buttons[str(args[2])[7:]] = args[3]
-        print(self._buttons)
 
     def is_pressed(self, button):
         try:
