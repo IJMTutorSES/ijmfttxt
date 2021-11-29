@@ -66,7 +66,7 @@ class Apds:
             return cls._write(register, val)
 
     @classmethod
-    def init(cls):
+    def init(cls) -> bool:
         if cls._read(ID)[0] != ID_VALUE:
             return False
         print("init")
@@ -103,7 +103,7 @@ class Apds:
         cls._set(ENABLE, ENABLE_PEN, False)
 
     @classmethod
-    def get_proximity(cls):
+    def get_proximity(cls) -> int:
         return cls._read(PDATA)
 
     @classmethod
@@ -117,7 +117,7 @@ class Apds:
         cls._set(ENABLE, ENABLE_AEN, False)
 
     @classmethod
-    def get_rgbc(cls):
+    def get_rgbc(cls) -> Tuple[int]:
         return cls._read(CDATAL, register_len=2, data_len=8)
 
     @classmethod
@@ -141,7 +141,7 @@ class Apds:
         cls._set(ENABLE, ENABLE_GEN, enable=False)
 
     @classmethod
-    def is_gesture_available(cls):
+    def is_gesture_available(cls) -> bool:
         res = cls._read(GSTATUS)[0]
         val = res & GSTATUS_GVALID
         if val == 0:
@@ -150,7 +150,7 @@ class Apds:
             return True
 
     @classmethod
-    def is_gesture_interrupt(cls):
+    def is_gesture_interrupt(cls) -> bool:
         res = cls._read(STATUS)[0]
         val = res & STATUS_GINT
         if val == 0:
@@ -172,7 +172,7 @@ class Apds:
         cls.gesmotion = None
 
     @classmethod
-    def get_gesture(cls):
+    def get_gesture(cls) -> bool | str:
         fifo_level = 0
         fifo_data = None
         motion = "None"
@@ -211,7 +211,7 @@ class Apds:
                 return motion
 
     @classmethod
-    def process_data(cls):
+    def process_data(cls) -> bool:
         u_first = 0
         d_first = 0
         l_first = 0
@@ -302,7 +302,7 @@ class Apds:
         return False
 
     @classmethod
-    def decode_gesture(cls):
+    def decode_gesture(cls) -> bool:
         if cls.state == "near":
             cls.gesmotion = "NEAR"
             return True

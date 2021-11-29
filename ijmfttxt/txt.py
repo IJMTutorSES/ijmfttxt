@@ -9,7 +9,7 @@ class TXT(ftrobopy.ftrobopy):
         Apds._TXT = self
 
     @staticmethod
-    def proximitySensor():
+    def proximitySensor() -> "_prox":
         class _prox:
             @staticmethod
             def turnOn():
@@ -20,13 +20,13 @@ class TXT(ftrobopy.ftrobopy):
                 Apds.disable_proximity()
 
             @staticmethod
-            def getDistance():
+            def getDistance() -> int:
                 Apds.get_proximity()
 
         return _prox
 
     @staticmethod
-    def lightSensor():
+    def lightSensor() -> "_light":
         class _light:
             @staticmethod
             def turnOn():
@@ -37,7 +37,7 @@ class TXT(ftrobopy.ftrobopy):
                 Apds.disable_light()
 
             @staticmethod
-            def getBrightness():
+            def getBrightness() -> int:
                 try:
                     return Apds.get_rgbc()[0]
                 except TypeError:
@@ -46,7 +46,7 @@ class TXT(ftrobopy.ftrobopy):
         return _light
 
     @staticmethod
-    def rgbSensor():
+    def rgbSensor() -> "_rgb":
         class _rgb:
             @staticmethod
             def turnOn():
@@ -57,13 +57,13 @@ class TXT(ftrobopy.ftrobopy):
                 Apds.disable_light()
 
             @staticmethod
-            def getColor():
+            def getColor() -> color.Color:
                 return color.Color(*Apds.get_rgbc())
 
         return _rgb
 
     @staticmethod
-    def gestureSensor():
+    def gestureSensor() -> "_ges":
         class _ges:
             @staticmethod
             def turnOn():
@@ -74,7 +74,7 @@ class TXT(ftrobopy.ftrobopy):
                 Apds.disable_gesture()
 
             @staticmethod
-            def getGesture():
+            def getGesture() -> str:
                 if Apds.is_gesture_interrupt():
                     gesture = Apds.get_gesture()
                 else:

@@ -46,7 +46,7 @@ class Mouse:
     def _on_click(self, *args):
         self._buttons[str(args[2])[7:]] = args[3]
 
-    def is_pressed(self, button):
+    def is_pressed(self, button: str) -> bool:
         try:
             return self._buttons[button]
         except KeyError:
