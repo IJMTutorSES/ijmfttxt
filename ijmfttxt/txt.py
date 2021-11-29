@@ -2,8 +2,8 @@ from . import ftrobopy
 from .apds import Apds
 from . import color
 
-class TXT(ftrobopy.ftrobopy):
 
+class TXT(ftrobopy.ftrobopy):
     def __init__(self, mode):
         super().__init__(mode)
         Apds._TXT = self
@@ -22,6 +22,7 @@ class TXT(ftrobopy.ftrobopy):
             @staticmethod
             def getDistance():
                 Apds.get_proximity()
+
         return _prox
 
     @staticmethod
@@ -41,6 +42,7 @@ class TXT(ftrobopy.ftrobopy):
                     return Apds.get_rgbc()[0]
                 except TypeError:
                     return -1
+
         return _light
 
     @staticmethod
@@ -57,7 +59,7 @@ class TXT(ftrobopy.ftrobopy):
             @staticmethod
             def getColor():
                 return color.Color(*Apds.get_rgbc())
-            
+
         return _rgb
 
     @staticmethod
@@ -78,4 +80,5 @@ class TXT(ftrobopy.ftrobopy):
                 else:
                     gesture = "NONE"
                 return gesture
+
         return _ges

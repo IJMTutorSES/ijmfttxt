@@ -2,7 +2,7 @@
 #            Register             #
 ###################################
 
-#General
+# General
 ADR = 0x39
 ID = 0x92
 ENABLE = 0x80
@@ -10,7 +10,7 @@ STATUS = 0x93
 IFORCE = 0xE4
 AICLEAR = 0xE7
 
-#Config and Control
+# Config and Control
 CONFIG1 = 0x8D
 CONFIG2 = 0x90
 CONFIG3 = 0x9F
@@ -18,14 +18,14 @@ CONTROL = 0x8F
 WTIME = 0x83
 PERS = 0x8C
 
-#Proximity
+# Proximity
 PILT = 0x89
 PIHT = 0x8B
 PPULSE = 0x8E
 PDATA = 0x9C
 PICLEAR = 0xE5
 
-#RGB 
+# RGB
 ATIME = 0x81
 AILTL = 0x84
 AIHTL = 0x86
@@ -35,7 +35,7 @@ GDATAL = 0x98
 BDATAL = 0x9A
 CICLEAR = 0xE6
 
-#Gesture
+# Gesture
 GPENTH = 0xA0
 GEXTH = 0xA1
 GCONF1 = 0xA2
@@ -52,12 +52,12 @@ GFIFO = 0xFC
 #             Values              #
 ###################################
 
-#General
+# General
 OFF = 0x00
 ENABLE_PON = 0x01
 ENABLE_WEN = 0x08
 
-WTIME_VALUE = lambda t: max(0, min(255, int(256 - t/2.78)))
+WTIME_VALUE = lambda t: max(0, min(255, int(256 - t / 2.78)))
 WTIME_RESET = 0xFF
 
 CONFIG1_WLONG = 0x02
@@ -76,7 +76,7 @@ LEDBOOST_RESET = 0x00
 
 ID_VALUE = 0xAB
 
-#Proximity
+# Proximity
 ENABLE_PEN = 0x04
 ENABLE_PIEN = 0x20
 
@@ -95,11 +95,11 @@ PPULSE_RESET = 0x40
 STATUS_PINT = 0x20
 STATUS_PVALID = 0x02
 
-#RGB
+# RGB
 ENABLE_AEN = 0x02
 ENABLE_AIEN = 0x10
 
-ATIME_VALUE = lambda t: max(0, min(255, int(256 - t/2.78)))
+ATIME_VALUE = lambda t: max(0, min(255, int(256 - t / 2.78)))
 ATIME_RESET = 0xFF
 
 AGAIN_1 = 0x00
@@ -111,7 +111,7 @@ AGAIN_RESET = 0x00
 STATUS_AINT = 0x10
 STATUS_AVALID = 0x01
 
-#Gesture
+# Gesture
 ENABLE_GEN = 0x40
 
 GFIFOTH_1 = 0x00
@@ -147,7 +147,7 @@ GPLEN_16 = 0x80
 GPLEN_31 = 0xC0
 GPLEN_RESET = 0x40
 
-GPULSE_VALUE = lambda p: max(0, min(255, p-1))
+GPULSE_VALUE = lambda p: max(0, min(255, p - 1))
 GPULSE_RESET = 0x00
 
 GDIMS_ALL = 0x00
@@ -167,7 +167,7 @@ GSTATUS_GVALID = 0x01
 #             Default             #
 ###################################
 
-#General
+# General
 CONFIG1_DEFAULT = 0x60
 CONFIG2_DEFAULT = 0x01
 CONFIG3_DEFAULT = 0x00
@@ -176,19 +176,19 @@ LDRIVE_DEFAULT = LDRIVE_100
 LEDBOOST_DEFAULT = LEDBOOST_100
 PERS_DEFAULT = 0x11
 
-#Proximiy
+# Proximiy
 PPULSE_DEFAULT = 0x87
 PGAIN_DEFAULT = PGAIN_4
 PILT_DEFAULT = 0x00
 PIHT_DEFAULT = 0x32
 
-#RGB
+# RGB
 ATIME_DEFAULT = 0xDB
 AGAIN_DEFAULT = AGAIN_4
 AILT_DEFAULT = 0xFF
 AIHT_DEFAULT = 0x00
 
-#Gesture
+# Gesture
 G_PPULSE_DEFAULT = 0x89
 GPENTH_DEFAULT = 0x28
 GEXTH_DEFAULT = 0x1E
@@ -205,18 +205,18 @@ GIEN_DEFAULT = 0x00
 #              Masks              #
 ###################################
 
-#General
+# General
 LDRIVE_MASK = 0x3F
 LEDBOOST_MASK = 0xCF
 
-#Proximity
+# Proximity
 PGAIN_MASK = 0xF3
 PPLEN_MASK = 0x3F
 
-#RGB
+# RGB
 AGAIN_MASK = 0xFC
 
-#Gesture
+# Gesture
 GFIFOTH_MASK = 0x3F
 GGAIN_MASK = 0x9F
 GLDRIVE_MASK = 0xE7
@@ -224,5 +224,3 @@ GWTIME_MASK = 0xF8
 GPLEN_MASK = 0x3F
 GPULSE_MASK = 0xC0
 GDIMS_MASK = 0xFC
-
-

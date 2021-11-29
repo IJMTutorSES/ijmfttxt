@@ -9,44 +9,44 @@ COLORS = {
     "cyan": (160, 195),
     "magenta": (285, 340),
     "red2": (0, 15),
-    "orange": (15,40),
-    "purple": (265, 285)
+    "orange": (15, 40),
+    "purple": (265, 285),
 }
 
 
 class Color:
     def __init__(self, raw_clear, raw_red, raw_green, raw_blue):
-        #raw color datat
+        # raw color datat
         self._rc = raw_clear
         self._rr = raw_red
         self._rg = raw_green
         self._rb = raw_blue
-        
-        #rgb color data
+
+        # rgb color data
         self._r, self._g, self._b = self._to_rgb()
 
-        #hsv color data
+        # hsv color data
         self._h, self._s, self._v = self._to_hsv()
 
-        #display color data
+        # display color data
         self._dr, self._dg, self._db = self._to_dis()
 
     @property
     def raw(self):
         return [self._rr, self._rg, self._rb]
-    
+
     @property
     def rawc(self):
         return [self._rc, self._rr, self._rg, self._rb]
-    
+
     @property
     def rgb(self):
         return [self._r, self._g, self._b]
-    
+
     @property
     def hsv(self):
         return [self._h, self._s, self._v]
-    
+
     @property
     def drgb(self):
         return [self._dr, self._dg, self._db]
@@ -54,7 +54,7 @@ class Color:
     @property
     def r(self):
         return self._r
-    
+
     @property
     def g(self):
         return self._g
@@ -62,15 +62,15 @@ class Color:
     @property
     def b(self):
         return self._b
-    
+
     @property
     def dr(self):
         return self._dr
-    
+
     @property
     def dg(self):
         return self._dg
-    
+
     @property
     def db(self):
         return self._db
@@ -78,11 +78,11 @@ class Color:
     @property
     def h(self):
         return self._h
-    
+
     @property
     def s(self):
         return self._s
-    
+
     @property
     def v(self):
         return self._v
@@ -107,31 +107,30 @@ class Color:
 
     def _to_rgb(self):
         max_color = max(self.raw)
-        return self._rr/max_color, self._rg/max_color, self._rb/max_color
+        return self._rr / max_color, self._rg / max_color, self._rb / max_color
 
     def _to_hsv(self):
-        max_color = max(self._r,self._g,self._b)
-        min_color = min(self._r,self._g,self._b)
+        max_color = max(self._r, self._g, self._b)
+        min_color = min(self._r, self._g, self._b)
         if max_color == min_color:
             hue = 0
         elif max_color == self._r:
-            hue = 60 * (self._g-self._b)/(max_color-min_color)
+            hue = 60 * (self._g - self._b) / (max_color - min_color)
         elif max_color == self._g:
-            hue = 60 * (2+(self._b-self._r)/(max_color-min_color))
+            hue = 60 * (2 + (self._b - self._r) / (max_color - min_color))
         elif max_color == self._b:
-            hue = 60 * (4+(self._r-self._g)/(max_color-min_color))
+            hue = 60 * (4 + (self._r - self._g) / (max_color - min_color))
         if hue < 0:
             hue += 360
         if max_color != 0:
-            sat = (max_color-min_color)/(max_color)
+            sat = (max_color - min_color) / (max_color)
         else:
             sat = 0
         value = max_color
-        return hue,sat,value
+        return hue, sat, value
 
     def _to_dis(self):
-        return int(self._r*255), int(self._g*255), int(self._b*255)
+        return int(self._r * 255), int(self._g * 255), int(self._b * 255)
 
     def __repr__(self) -> str:
         return f"Color(raw_clear: {self._rc}; raw_red: {self._rr}; raw_green: {self._rg}; raw_blue: {self._rb})"
-

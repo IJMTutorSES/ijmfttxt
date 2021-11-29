@@ -1,12 +1,13 @@
-import ijmrobopy
+import time
+import ijmfttxt
 
-#Initialize and setup Connection to TXT Controller
-TXT = ijmrobopy.TXT("auto")
+# Initialize and setup Connection to TXT Controller
+TXT = ijmfttxt.TXT("auto")
 
-#Get Motor connect to Output 1
+# Get Motor connect to Output 1
 motor = TXT.motor(1)
 
-#Set Moter speed to 5 for 3 seconds and then stop
+# Set Moter speed to 5 for 3 seconds and then stop
 motor.setSpeed(5)
-ijmrobopy.wait(3)
+time.sleep(3)
 motor.stop()

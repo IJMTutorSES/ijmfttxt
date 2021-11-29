@@ -1,18 +1,18 @@
-import ijmrobopy
+import ijmfttxt
 
-#Initialize and setup Connection to TXT Controller
-TXT = ijmrobopy.TXT("auto")
+# Initialize and setup Connection to TXT Controller
+TXT = ijmfttxt.TXT()
 
-#Initialize and setup Listener fo Keyboardinputs
+# Initialize and setup Listener fo Keyboardinputs
 KEYBOARD = ijmrobopy.Keyboard()
 
-#Get Motor connected to Output 1
+# Get Motor connected to Output 1
 motor = TXT.motor(1)
 
-#Repeat forever
+# Repeat forever
 while True:
-    #If e is pressed start Motor else stop Motor
+    # If e is pressed start Motor else stop Motor
     if KEYBOARD.is_pressed("e"):
-        motor.setSpeed(512)
+        motor.setSpeed(8)
     else:
         motor.setSpeed(0)

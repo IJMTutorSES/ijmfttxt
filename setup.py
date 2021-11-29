@@ -1,34 +1,33 @@
 from setuptools import setup
 
+
 def readme():
     with open("README.rst") as f:
         return f.read()
 
+
 setup(
-    name = "ijmfttxt",
-    version= "1.5.2",
-    description= "Erweiterung zu ftrobopy",
-    long_description= readme(),
+    name="ijmfttxt",
+    version="1.5.3",
+    description="Erweiterung zu ftrobopy",
+    long_description=readme(),
     classifiers=[
-    'Development Status :: 5 - Production/Stable',
-    'Intended Audience :: Education',
-    'License :: OSI Approved :: MIT License',
-    'Natural Language :: English',
-    'Programming Language :: Python :: 3.9',
-    'Topic :: Education',
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Education",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: Education",
     ],
-    keywords='ftrobopy fischertechnik txt ijm',
-    url='https://github.com/IJMTutorSES/ijmfttxt',
-    author='Sebastian Specht',
-    author_email='s.specht@ijm-online.de',
-    license='MIT',
-    packages=[
-        "ijmfttxt",
-        "ijmfttxt/ftrobopy"
-    ],
+    keywords="ftrobopy fischertechnik txt ijm",
+    url="https://github.com/IJMTutorSES/ijmfttxt",
+    author="Sebastian Specht",
+    author_email="s.specht@ijm-online.de",
+    license="MIT",
+    packages=["ijmfttxt", "ijmfttxt/ftrobopy"],
     install_requires=[
-        'pynput',
+        "pynput",
     ],
     include_package_data=True,
-    zip_safe=False
+    zip_safe=False,
 )
