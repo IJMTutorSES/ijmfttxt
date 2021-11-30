@@ -2601,7 +2601,7 @@ class ftrobopy(ftTXT):
             self.updateWait()
         return mot(self, output, ext)
 
-    def output(self, num, level=0, ext=ftTXT.C_EXT_MASTER, wait=True):
+    def led(self, num, level=0, ext=ftTXT.C_EXT_MASTER, wait=True):
         class out(object):
             def __init__(self, outer, num, level, ext):
                 self._outer = outer
@@ -2624,7 +2624,7 @@ class ftrobopy(ftTXT):
             self.updateWait()
         return out(self, num, level, ext)
 
-    def input(self, num, ext=ftTXT.C_EXT_MASTER, wait=True):
+    def button(self, num, ext=ftTXT.C_EXT_MASTER, wait=True):
         class inp(object):
             def __init__(self, outer, num, ext):
                 self._outer = outer

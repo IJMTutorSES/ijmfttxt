@@ -7,52 +7,71 @@ from .constants import *
 
 
 class Apds:
-    _TXT: ftrobopy.ftTXT = None
-    gesdata_up = [0 for _ in range(32)]
-    gesdata_down = [0 for _ in range(32)]
-    gesdata_left = [0 for _ in range(32)]
-    gesdata_right = [0 for _ in range(32)]
-    gesdata_index = 0
-    gesdata_total = 0
-    gesmotion = None
-    ud_delta = 0
-    lr_delta = 0
-    ud_count = 0
-    lr_count = 0
-    near_count = 0
-    far_count = 0
-    state = 0
-    THRESHOLD = 10
-    SENS1 = 15
-    SENS2 = 50
+    _singelton: "Apds" = None
 
-    @classmethod
-    def _write(cls, register: int, data: int, debug=False) -> bool:
-        if cls._TXT.i2c_write(ADR, register, data, debug):
-            return True
-        else:
+    def __new__(cls, *args, **kwargs):
+        if not cls._singelton:
+            cls._singelton = super().__new__(cls, *args, **kwargs)
+        return cls._singelton
+
+    def __init__(self):
+        _TXT: ftrobopy.ftTXT = None
+        gesdata_up = [0 for _ in range(32)]
+        gesdata_down = [0 for _ in range(32)]
+        gesdata_left = [0 for _ in range(32)]
+        gesdata_right = [0 for _ in range(32)]
+        gesdata_index = 0
+        gesdata_total = 0
+        gesmotion = None
+        ud_delta = 0
+        lr_delta = 0
+        ud_count = 0
+        lr_count = 0
+        near_count = 0
+        far_count = 0
+        state = 0
+        THRESHOLD = 10
+        SENS1 = 15
+        SENS2 = 50
+
+        self.reset()
+
+    def reset(self) -> bool:
+        if self._read(ID)[0] != ID_VALUE:
             return False
+        self._write(ENABLE, OFF)
+        self._write(ATIME, ATIME_DEFAULT)
+        self._write(WTIME, WTIME_DEFAULT)
+        self._write(PPULSE, PPULSE_DEFAULT)
+        self._write(CONFIG1, CONFIG1_DEFAULT)
+        self._write(CONTROL, LDRIVE_DEFAULT | PGAIN_DEFAULT | AGAIN_DEFAULT)
+        self._write(PILT, PILT_DEFAULT)
+        self._write(PIHT, PIHT_DEFAULT)
+        self._write(AILTL, AILT_DEFAULT)
+        self._write(AIHTL, AIHT_DEFAULT)
+        self._write(PERS, PERS_DEFAULT)
+        self._write(CONFIG2, CONFIG2_DEFAULT)
+        self._write(CONFIG3, CONFIG3_DEFAULT)
+        self._write(GPENTH, GPENTH_DEFAULT)
+        self._write(GEXTH, GEXTH_DEFAULT)
+        self._write(GCONF1, GCONF1_DEFAULT)
+        self._write(GCONF2, GGAIN_DEFAULT | GLDRIVE_DEFAULT | GWTIME_DEFAULT)
+        self._write(GPULSE, GPULSE_DEFAULT)
+        self._write(GCONF3, GCONF3_DEFAULT)
+        return True
 
-    @classmethod
-    def _read(
-        cls, register: int, register_len: int = 1, data_len: int = 1, debug=False
-    ) -> Union[Tuple[int], ByteString]:
-        buffer = cls._TXT.i2c_read(ADR, register, data_len=data_len, debug=debug)
-        if register_len == 1:
-            return struct.unpack("<" + "B" * data_len, buffer)
-        elif register_len == 2:
-            return struct.unpack("<" + "H" * (data_len // 2), buffer)
-        else:
-            return buffer
+    def __del__(self):
+        self.disable_gesture()
+        self.disable_light()
+        self.disable_proximity()
 
-    @classmethod
-    def _set(cls, register: int, data: int, mask: int = 0, enable: bool = True):
+    def _set(self, register: int, data: int, mask: int = 0, enable: bool = True):
         if mask != 0:
-            res = cls._read(register)[0]
+            res = self._read(register)[0]
             val = (res & mask) | data
-            return cls._write(register, val)
+            return self._write(register, val)
         else:
-            res = cls._read(register)[0]
+            res = self._read(register)[0]
             bit = res & data
             if bit != 0 and enable == False:
                 val = res ^ data
@@ -61,155 +80,116 @@ class Apds:
             else:
                 return False
             print(res, data, val)
-            return cls._write(register, val)
+            return self._write(register, val)
 
-    @classmethod
-    def init(cls) -> bool:
-        if cls._read(ID)[0] != ID_VALUE:
-            return False
-        print("init")
-        cls._write(ENABLE, OFF)
-        cls._write(ATIME, ATIME_DEFAULT)
-        cls._write(WTIME, WTIME_DEFAULT)
-        cls._write(PPULSE, PPULSE_DEFAULT)
-        cls._write(CONFIG1, CONFIG1_DEFAULT)
-        cls._write(CONTROL, LDRIVE_DEFAULT | PGAIN_DEFAULT | AGAIN_DEFAULT)
-        cls._write(PILT, PILT_DEFAULT)
-        cls._write(PIHT, PIHT_DEFAULT)
-        cls._write(AILTL, AILT_DEFAULT)
-        cls._write(AIHTL, AIHT_DEFAULT)
-        cls._write(PERS, PERS_DEFAULT)
-        cls._write(CONFIG2, CONFIG2_DEFAULT)
-        cls._write(CONFIG3, CONFIG3_DEFAULT)
-        cls._write(GPENTH, GPENTH_DEFAULT)
-        cls._write(GEXTH, GEXTH_DEFAULT)
-        cls._write(GCONF1, GCONF1_DEFAULT)
-        cls._write(GCONF2, GGAIN_DEFAULT | GLDRIVE_DEFAULT | GWTIME_DEFAULT)
-        cls._write(GPULSE, GPULSE_DEFAULT)
-        cls._write(GCONF3, GCONF3_DEFAULT)
-        return True
+    def enable_proximity(self):
+        self._set(CONTROL, PGAIN_DEFAULT, mask=PGAIN_MASK)
+        self._set(CONTROL, LDRIVE_DEFAULT, mask=LDRIVE_MASK)
+        self._set(ENABLE, ENABLE_PON, enable=True)
+        self._set(ENABLE, ENABLE_PEN, enable=True)
 
-    @classmethod
-    def enable_proximity(cls):
-        cls._set(CONTROL, PGAIN_DEFAULT, mask=PGAIN_MASK)
-        cls._set(CONTROL, LDRIVE_DEFAULT, mask=LDRIVE_MASK)
-        cls._set(ENABLE, ENABLE_PON, enable=True)
-        cls._set(ENABLE, ENABLE_PEN, enable=True)
+    def disable_proximity(self):
+        self._set(ENABLE, ENABLE_PEN, False)
 
-    @classmethod
-    def disable_proximity(cls):
-        cls._set(ENABLE, ENABLE_PEN, False)
+    def get_proximity(self) -> int:
+        return self._read(PDATA)
 
-    @classmethod
-    def get_proximity(cls) -> int:
-        return cls._read(PDATA)
+    def enable_light(self):
+        self._set(CONTROL, AGAIN_DEFAULT, mask=AGAIN_MASK)
+        self._set(ENABLE, ENABLE_PON, enable=True)
+        self._set(ENABLE, ENABLE_AEN, enable=True)
 
-    @classmethod
-    def enable_light(cls):
-        cls._set(CONTROL, AGAIN_DEFAULT, mask=AGAIN_MASK)
-        cls._set(ENABLE, ENABLE_PON, enable=True)
-        cls._set(ENABLE, ENABLE_AEN, enable=True)
+    def disable_light(self):
+        self._set(ENABLE, ENABLE_AEN, False)
 
-    @classmethod
-    def disable_light(cls):
-        cls._set(ENABLE, ENABLE_AEN, False)
+    def get_rgbc(self) -> Tuple[int]:
+        return self._read(CDATAL, register_len=2, data_len=8)
 
-    @classmethod
-    def get_rgbc(cls) -> Tuple[int]:
-        return cls._read(CDATAL, register_len=2, data_len=8)
+    def enable_gesture(self):
+        self.reset_gesture_param()
+        self._write(WTIME, WTIME_RESET)
+        self._write(PPULSE, G_PPULSE_DEFAULT)
+        self._set(CONFIG2, LEDBOOST_200, mask=LEDBOOST_MASK)
+        self._set(GCONF4, GCONF4_GIEN, True)
+        self._set(GCONF4, GCONF4_GMODE, enable=True)
+        self._set(ENABLE, ENABLE_PON, enable=True)
+        self._set(ENABLE, ENABLE_WEN, enable=True)
+        self._set(ENABLE, ENABLE_PEN, enable=True)
+        self._set(ENABLE, ENABLE_GEN, enable=True)
 
-    @classmethod
-    def enable_gesture(cls):
-        cls.reset_gesture_param()
-        cls._write(WTIME, WTIME_RESET)
-        cls._write(PPULSE, G_PPULSE_DEFAULT)
-        cls._set(CONFIG2, LEDBOOST_200, mask=LEDBOOST_MASK)
-        cls._set(GCONF4, GCONF4_GIEN, True)
-        cls._set(GCONF4, GCONF4_GMODE, enable=True)
-        cls._set(ENABLE, ENABLE_PON, enable=True)
-        cls._set(ENABLE, ENABLE_WEN, enable=True)
-        cls._set(ENABLE, ENABLE_PEN, enable=True)
-        cls._set(ENABLE, ENABLE_GEN, enable=True)
+    def disable_gesture(self):
+        self.reset_gesture_param()
+        self._set(GCONF4, GCONF4_GIEN, enable=False)
+        self._set(GCONF4, GCONF4_GMODE, enable=False)
+        self._set(ENABLE, ENABLE_GEN, enable=False)
 
-    @classmethod
-    def disable_gesture(cls):
-        cls.reset_gesture_param()
-        cls._set(GCONF4, GCONF4_GIEN, enable=False)
-        cls._set(GCONF4, GCONF4_GMODE, enable=False)
-        cls._set(ENABLE, ENABLE_GEN, enable=False)
-
-    @classmethod
-    def is_gesture_available(cls) -> bool:
-        res = cls._read(GSTATUS)[0]
+    def is_gesture_available(self) -> bool:
+        res = self._read(GSTATUS)[0]
         val = res & GSTATUS_GVALID
         if val == 0:
             return False
         else:
             return True
 
-    @classmethod
-    def is_gesture_interrupt(cls) -> bool:
-        res = cls._read(STATUS)[0]
+    def is_gesture_interrupt(self) -> bool:
+        res = self._read(STATUS)[0]
         val = res & STATUS_GINT
         if val == 0:
             return False
         else:
             return True
 
-    @classmethod
-    def reset_gesture_param(cls):
-        cls.gesdata_index = 0
-        cls.gesdata_total = 0
-        cls.ud_delta = 0
-        cls.lr_delta = 0
-        cls.ud_count = 0
-        cls.lr_count = 0
-        cls.near_count = 0
-        cls.far_count = 0
-        cls.state = 0
-        cls.gesmotion = None
+    def reset_gesture_param(self):
+        self.gesdata_index = 0
+        self.gesdata_total = 0
+        self.ud_delta = 0
+        self.lr_delta = 0
+        self.ud_count = 0
+        self.lr_count = 0
+        self.near_count = 0
+        self.far_count = 0
+        self.state = 0
+        self.gesmotion = None
 
-    @classmethod
-    def get_gesture(cls) -> bool | str:
+    def get_gesture(self) -> bool | str:
         fifo_level = 0
         fifo_data = None
         motion = "None"
 
-        if not cls.is_gesture_available() or cls._read(ENABLE)[0] & ENABLE_PON == 0:
+        if not self.is_gesture_available() or self._read(ENABLE)[0] & ENABLE_PON == 0:
             return False
 
         while True:
             time.sleep(0.03)
-            gstatus = cls._read(GSTATUS)[0]
+            gstatus = self._read(GSTATUS)[0]
             if (gstatus & GSTATUS_GVALID) == GSTATUS_GVALID:
-                fifo_level = cls._read(GFLVL)[0]
+                fifo_level = self._read(GFLVL)[0]
                 print(f"{fifo_level=}")
                 if fifo_level > 0:
-                    fifo_data = cls._read(GFIFO, data_len=4 * fifo_level)
+                    fifo_data = self._read(GFIFO, data_len=4 * fifo_level)
                     bytes_read = len(fifo_data)
                     if bytes_read >= 4:
                         for i in range(0, bytes_read, 4):
-                            cls.gesdata_up[cls.gesdata_index] = fifo_data[i + 0]
-                            cls.gesdata_down[cls.gesdata_index] = fifo_data[i + 1]
-                            cls.gesdata_left[cls.gesdata_index] = fifo_data[i + 2]
-                            cls.gesdata_right[cls.gesdata_index] = fifo_data[i + 3]
-                            cls.gesdata_index += 1
-                            cls.gesdata_total += 1
-                        if cls.process_data():
-                            if cls.decode_gesture():
-                                print(cls.gesmotion)
-                        cls.gesdata_index = 0
-                        cls.gesdata_total = 0
+                            self.gesdata_up[self.gesdata_index] = fifo_data[i + 0]
+                            self.gesdata_down[self.gesdata_index] = fifo_data[i + 1]
+                            self.gesdata_left[self.gesdata_index] = fifo_data[i + 2]
+                            self.gesdata_right[self.gesdata_index] = fifo_data[i + 3]
+                            self.gesdata_index += 1
+                            self.gesdata_total += 1
+                        if self.process_data():
+                            if self.decode_gesture():
+                                print(self.gesmotion)
+                        self.gesdata_index = 0
+                        self.gesdata_total = 0
             else:
                 time.sleep(0.03)
-                cls.decode_gesture()
-                motion = cls.gesmotion
-                print(cls.gesmotion)
-                cls.reset_gesture_param()
+                self.decode_gesture()
+                motion = self.gesmotion
+                print(self.gesmotion)
+                self.reset_gesture_param()
                 return motion
 
-    @classmethod
-    def process_data(cls) -> bool:
+    def process_data(self) -> bool:
         u_first = 0
         d_first = 0
         l_first = 0
@@ -224,34 +204,34 @@ class Apds:
         lr_ratio_last = 0
         ud_delta = 0
         lr_delta = 0
-        if cls.gesdata_total <= 4:
+        if self.gesdata_total <= 4:
             return False
-        if cls.gesdata_total <= 32 and cls.gesdata_total > 0:
-            for i in range(cls.gesdata_total):
+        if self.gesdata_total <= 32 and self.gesdata_total > 0:
+            for i in range(self.gesdata_total):
                 if (
-                    cls.gesdata_up[i] > cls.THRESHOLD
-                    and cls.gesdata_down[i] > cls.THRESHOLD
-                    and cls.gesdata_left[i] > cls.THRESHOLD
-                    and cls.gesdata_right[i] > cls.THRESHOLD
+                    self.gesdata_up[i] > self.THRESHOLD
+                    and self.gesdata_down[i] > self.THRESHOLD
+                    and self.gesdata_left[i] > self.THRESHOLD
+                    and self.gesdata_right[i] > self.THRESHOLD
                 ):
-                    u_first = cls.gesdata_up[i]
-                    d_first = cls.gesdata_down[i]
-                    l_first = cls.gesdata_left[i]
-                    r_first = cls.gesdata_right[i]
+                    u_first = self.gesdata_up[i]
+                    d_first = self.gesdata_down[i]
+                    l_first = self.gesdata_left[i]
+                    r_first = self.gesdata_right[i]
                     break
             if u_first == 0 or d_first == 0 or l_first == 0 or r_first == 0:
                 return False
-            for i in range(cls.gesdata_total - 1, 0, -1):
+            for i in range(self.gesdata_total - 1, 0, -1):
                 if (
-                    cls.gesdata_up[i] > cls.THRESHOLD
-                    and cls.gesdata_down[i] > cls.THRESHOLD
-                    and cls.gesdata_left[i] > cls.THRESHOLD
-                    and cls.gesdata_right[i] > cls.THRESHOLD
+                    self.gesdata_up[i] > self.THRESHOLD
+                    and self.gesdata_down[i] > self.THRESHOLD
+                    and self.gesdata_left[i] > self.THRESHOLD
+                    and self.gesdata_right[i] > self.THRESHOLD
                 ):
-                    u_last = cls.gesdata_up[i]
-                    d_last = cls.gesdata_down[i]
-                    l_last = cls.gesdata_left[i]
-                    r_last = cls.gesdata_right[i]
+                    u_last = self.gesdata_up[i]
+                    d_last = self.gesdata_down[i]
+                    l_last = self.gesdata_left[i]
+                    r_last = self.gesdata_right[i]
                     break
         try:
             ud_ratio_first = ((u_first - d_first) * 100) / (u_first + d_first)
@@ -262,80 +242,96 @@ class Apds:
             return False
         ud_delta = ud_ratio_last - ud_ratio_first
         lr_delta = lr_ratio_last - lr_ratio_first
-        cls.ud_delta += ud_delta
-        cls.lr_delta += lr_delta
-        if cls.ud_delta >= cls.SENS1:
-            cls.ud_count = 1
-        elif cls.ud_delta <= -cls.SENS1:
-            cls.ud_count = -1
+        self.ud_delta += ud_delta
+        self.lr_delta += lr_delta
+        if self.ud_delta >= self.SENS1:
+            self.ud_count = 1
+        elif self.ud_delta <= -self.SENS1:
+            self.ud_count = -1
         else:
-            cls.ud_count = 0
-        if cls.lr_delta >= cls.SENS1:
-            cls.lr_count = 1
-        elif cls.lr_delta <= -cls.SENS1:
-            cls.lr_count = -1
+            self.ud_count = 0
+        if self.lr_delta >= self.SENS1:
+            self.lr_count = 1
+        elif self.lr_delta <= -self.SENS1:
+            self.lr_count = -1
         else:
-            cls.lr_count = 0
-        if cls.ud_count == 0 and cls.lr_count == 0:
-            if abs(ud_delta) < cls.SENS2 and abs(lr_delta) < cls.SENS2:
+            self.lr_count = 0
+        if self.ud_count == 0 and self.lr_count == 0:
+            if abs(ud_delta) < self.SENS2 and abs(lr_delta) < self.SENS2:
                 if ud_delta == 0 and lr_delta == 0:
-                    cls.near_count += 1
+                    self.near_count += 1
                 elif ud_delta != 0 or lr_delta != 0:
-                    cls.far_count += 1
-                if cls.near_count >= 10 and cls.far_count >= 2:
+                    self.far_count += 1
+                if self.near_count >= 10 and self.far_count >= 2:
                     if ud_delta == 0 and lr_delta == 0:
-                        cls.state = "near"
+                        self.state = "near"
                     elif ud_delta != 0 and lr_delta != 0:
-                        cls.state = "far"
+                        self.state = "far"
                     return True
         else:
-            if abs(ud_delta) < cls.SENS2 and abs(lr_delta) < cls.SENS2:
+            if abs(ud_delta) < self.SENS2 and abs(lr_delta) < self.SENS2:
                 if ud_delta == 0 and lr_delta == 0:
-                    cls.near_count += 1
-                if cls.near_count >= 10:
-                    cls.ud_count = 0
-                    cls.lr_count = 0
-                    cls.ud_delta = 0
-                    cls.lr_delta = 0
+                    self.near_count += 1
+                if self.near_count >= 10:
+                    self.ud_count = 0
+                    self.lr_count = 0
+                    self.ud_delta = 0
+                    self.lr_delta = 0
         return False
 
-    @classmethod
-    def decode_gesture(cls) -> bool:
-        if cls.state == "near":
-            cls.gesmotion = "NEAR"
+    def decode_gesture(self) -> bool:
+        if self.state == "near":
+            self.gesmotion = "NEAR"
             return True
-        elif cls.state == "far":
-            cls.gesmotion = "FAR"
+        elif self.state == "far":
+            self.gesmotion = "FAR"
             return True
-        print(f"{cls.ud_count=}; {cls.lr_count=}")
-        if cls.ud_count == -1 and cls.lr_count == 0:
-            cls.gesmotion = "UP"
-        elif cls.ud_count == 1 and cls.lr_count == 0:
-            cls.gesmotion = "DOWN"
-        elif cls.ud_count == 0 and cls.lr_count == 1:
-            cls.gesmotion == "RIGHT"
-        elif cls.ud_count == 0 and cls.lr_count == -1:
-            cls.gesmotion == "LEFT"
-        elif cls.ud_count == -1 and cls.lr_count == 1:
-            if abs(cls.ud_delta) > abs(cls.lr_delta):
-                cls.gesmotion = "UP"
+        print(f"{self.ud_count=}; {self.lr_count=}")
+        if self.ud_count == -1 and self.lr_count == 0:
+            self.gesmotion = "UP"
+        elif self.ud_count == 1 and self.lr_count == 0:
+            self.gesmotion = "DOWN"
+        elif self.ud_count == 0 and self.lr_count == 1:
+            self.gesmotion == "RIGHT"
+        elif self.ud_count == 0 and self.lr_count == -1:
+            self.gesmotion == "LEFT"
+        elif self.ud_count == -1 and self.lr_count == 1:
+            if abs(self.ud_delta) > abs(self.lr_delta):
+                self.gesmotion = "UP"
             else:
-                cls.gesmotion = "RIGHT"
-        elif cls.ud_count == 1 and cls.lr_count == -1:
-            if abs(cls.ud_delta) > abs(cls.lr_delta):
-                cls.gesmotion = "DOWN"
+                self.gesmotion = "RIGHT"
+        elif self.ud_count == 1 and self.lr_count == -1:
+            if abs(self.ud_delta) > abs(self.lr_delta):
+                self.gesmotion = "DOWN"
             else:
-                cls.gesmotion = "LEFT"
-        elif cls.ud_count == -1 and cls.lr_count == -1:
-            if abs(cls.ud_delta) > abs(cls.lr_delta):
-                cls.gesmotion = "UP"
+                self.gesmotion = "LEFT"
+        elif self.ud_count == -1 and self.lr_count == -1:
+            if abs(self.ud_delta) > abs(self.lr_delta):
+                self.gesmotion = "UP"
             else:
-                cls.gesmotion = "LEFT"
-        elif cls.ud_count == 1 and cls.lr_count == 1:
-            if abs(cls.ud_delta) > abs(cls.lr_delta):
-                cls.gesmotion = "DOWN"
+                self.gesmotion = "LEFT"
+        elif self.ud_count == 1 and self.lr_count == 1:
+            if abs(self.ud_delta) > abs(self.lr_delta):
+                self.gesmotion = "DOWN"
             else:
-                cls.gesmotion = "RIGHT"
+                self.gesmotion = "RIGHT"
         else:
             return False
         return True
+
+    def _write(self, register: int, data: int, debug=False) -> bool:
+        if self._TXT.i2c_write(ADR, register, data, debug):
+            return True
+        else:
+            return False
+
+    def _read(
+        self, register: int, register_len: int = 1, data_len: int = 1, debug=False
+    ) -> Union[Tuple[int], ByteString]:
+        buffer = self._TXT.i2c_read(ADR, register, data_len=data_len, debug=debug)
+        if register_len == 1:
+            return struct.unpack("<" + "B" * data_len, buffer)
+        elif register_len == 2:
+            return struct.unpack("<" + "H" * (data_len // 2), buffer)
+        else:
+            return buffer

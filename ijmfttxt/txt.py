@@ -6,79 +6,77 @@ from . import color
 class TXT(ftrobopy.ftrobopy):
     def __init__(self, mode):
         super().__init__(mode)
-        Apds._TXT = self
 
-    @staticmethod
-    def proximitySensor() -> "_prox":
-        class _prox:
-            @staticmethod
-            def turnOn():
-                Apds.enable_proximity()
+    def proximitySensor(self):
+        class prox:
+            def __init__(self, outer):
+                self.apds = Apds(outer)
 
-            @staticmethod
-            def turnOff():
-                Apds.disable_proximity()
+            def turnOn(self):
+                self.apds.enable_proximity()
 
-            @staticmethod
-            def getDistance() -> int:
-                Apds.get_proximity()
+            def turnOff(self):
+                self.apds.disable_proximity()
 
-        return _prox
+            def getDistance(self) -> int:
+                self.apds.get_proximity()
 
-    @staticmethod
-    def lightSensor() -> "_light":
-        class _light:
-            @staticmethod
-            def turnOn():
-                Apds.enable_light()
+        return prox(self)
 
-            @staticmethod
-            def turnOff():
-                Apds.disable_light()
+    def lightSensor(self):
+        class light:
+            def __init__(self, outer):
+                self.apds = Apds(outer)
 
-            @staticmethod
-            def getBrightness() -> int:
+            def turnOn(self):
+                self.apds.enable_light()
+
+            def turnOff(self):
+                self.apds.disable_light()
+
+            def getBrightness(self) -> int:
                 try:
-                    return Apds.get_rgbc()[0]
+                    return self.apds.get_rgbc()[0]
                 except TypeError:
                     return -1
 
-        return _light
+        return light(self)
 
-    @staticmethod
-    def rgbSensor() -> "_rgb":
-        class _rgb:
-            @staticmethod
-            def turnOn():
-                Apds.enable_light()
+    def rgbSensor(self):
+        class rgb:
+            def __init__(self, outer):
+                self.apds = Apds(outer)
 
             @staticmethod
-            def turnOff():
-                Apds.disable_light()
+            def turnOn(self):
+                self.apds.enable_light()
 
             @staticmethod
-            def getColor() -> color.Color:
-                return color.Color(*Apds.get_rgbc())
-
-        return _rgb
-
-    @staticmethod
-    def gestureSensor() -> "_ges":
-        class _ges:
-            @staticmethod
-            def turnOn():
-                Apds.enable_gesture()
+            def turnOff(self):
+                self.apds.disable_light()
 
             @staticmethod
-            def turnOff():
-                Apds.disable_gesture()
+            def getColor(self) -> color.Color:
+                return color.Color(*self.apds.get_rgbc())
 
-            @staticmethod
-            def getGesture() -> str:
-                if Apds.is_gesture_interrupt():
-                    gesture = Apds.get_gesture()
+        return rgb(self)
+
+    def gestureSensor(self):
+        class ges:
+            def __init__(self, outer):
+                self.apds = Apds(outer)
+
+            def turnOn(self):
+                self.apds.enable_gesture()
+
+            def turnOff(self):
+                self.apds.disable_gesture()
+
+            def getGesture(self) -> str:
+                if self.apds.is_gesture_interrupt():
+                    gesture = self.apds.get_gesture()
                 else:
                     gesture = "NONE"
                 return gesture
 
-        return _ges
+        return ges(self)
