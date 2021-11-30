@@ -1,8 +1,6 @@
 import struct
 import time
-
-from typing import Tuple, Union, ByteString
-
+from typing import ByteString, Tuple, Union
 
 from . import ftrobopy
 from .constants import *
