@@ -151,7 +151,7 @@ class Apds:
         self.state = 0
         self.gesmotion = None
 
-    def get_gesture(self) -> bool | str:
+    def get_gesture(self) -> Union[bool, str]:
         fifo_level = 0
         fifo_data = None
         motion = "None"

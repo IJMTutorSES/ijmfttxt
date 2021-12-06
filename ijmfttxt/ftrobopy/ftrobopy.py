@@ -2422,10 +2422,7 @@ class ftrobopy(ftTXT):
                     if probe_socket("127.0.0.1"):
                         host = "127.0.0.1"
                     else:
-                        print(
-                            "Error: auto-detection failed, TxtControlMain-Prozess is running, but did not respond."
-                        )
-                        return
+                        raise RuntimeError("Failed to connect to TXT-Controller")
                 else:
                     host = "direct"
             # not running on TXT-controller, check standard ports (only in auto mode)
@@ -2441,9 +2438,7 @@ class ftrobopy(ftTXT):
                     elif probe_socket(special_connection):
                         host = special_connection
                     else:
-                        print(
-                            "Error: could not auto detect TXT connection. Please specify host and port manually !"
-                        )
+                        # raise RuntimeError("Failed to connect to TXT-Controller")
                         return
         if host[:6] == "direct":
             # check if running on FT-txt
@@ -2509,8 +2504,19 @@ class ftrobopy(ftTXT):
             if self._ser_ms:
                 self._ser_ms.close()
 
-    def motor(self, output, ext=ftTXT.C_EXT_MASTER, wait=True):
+    def motor(self, output):
+        """Erzeugt neuen Motor
+
+        Args:
+            output (int): Anschlussnummer
+
+        Returns:
+            mot: Objekt mit dem ein Motor gesteuert werden kann
+        """
+
         class mot(object):
+            """Klasse für fischertechnik Motoren"""
+
             def __init__(self, outer, output, ext):
                 self._outer = outer
                 self._output = output
@@ -2523,7 +2529,12 @@ class ftrobopy(ftTXT):
                 self._outer._exchange_data_lock.release()
 
             def setSpeed(self, speed):
-                c_speed = int(292 / 8 * int(speed) + 220)
+                """Aktualisiert die Drehgeschwindigkeit des Motors
+
+                Args:
+                    speed (int): Zahl zwischen -8 und 8
+                """
+                c_speed = int(200 / 8 * int(speed) + 312)
                 if c_speed == self._speed:
                     return
                 self._outer._exchange_data_lock.acquire()
@@ -2588,11 +2599,14 @@ class ftrobopy(ftTXT):
                 )
 
             def stop(self):
+                """Stoppt den Motor"""
                 self._outer._exchange_data_lock.acquire()
                 self.setSpeed(0)
                 self.setDistance(0)
                 self._outer._exchange_data_lock.release()
 
+        ext = ftTXT.C_EXT_MASTER
+        wait = True
         M, I = self.getConfig(ext)
         M[output - 1] = ftTXT.C_MOTOR
         self.setConfig(M, I, ext)
@@ -2601,8 +2615,20 @@ class ftrobopy(ftTXT):
             self.updateWait()
         return mot(self, output, ext)
 
-    def led(self, num, level=0, ext=ftTXT.C_EXT_MASTER, wait=True):
-        class out(object):
+    def led(self, num, level=0):
+        """Erzeugt neue lampe
+
+        Args:
+            num (int): Anschlussnummer
+            level (int, optional): Startwert der Helligkeit. Defaults to 0.
+
+        Returns:
+            out: Objekt mit dem eine Lampe gesteuert werden kann
+        """
+
+        class led(object):
+            """Klasse für fischertechnik Leds"""
+
             def __init__(self, outer, num, level, ext):
                 self._outer = outer
                 self._num = num
@@ -2611,29 +2637,54 @@ class ftrobopy(ftTXT):
                 self.setLevel(level)
 
             def setLevel(self, level):
+                """Aktualisiert die Helligkeit der lampe
+
+                Args:
+                    level (int): Zahl zwischen 0 und 512
+                """
                 self._level = level
                 self._outer._exchange_data_lock.acquire()
                 self._outer.setPwm(num - 1, self._level, self._ext)
                 self._outer._exchange_data_lock.release()
 
+        ext = ftTXT.C_EXT_MASTER
+        wait = True
         M, I = self.getConfig(ext)
         M[int((num - 1) / 2)] = ftTXT.C_OUTPUT
         self.setConfig(M, I, ext)
         self.updateConfig(ext)
         if wait:
             self.updateWait()
-        return out(self, num, level, ext)
+        return led(self, num, level, ext)
 
-    def button(self, num, ext=ftTXT.C_EXT_MASTER, wait=True):
+    def button(self, num):
+        """Erzeut neuen Schalter
+
+        Args:
+            num (int): Anschlussnummer
+
+        Returns:
+            inp: Objekt mit dem ein Schalter abgefragt werden kann
+        """
+
         class inp(object):
+            """Klasse für Fischertechnik Schalter"""
+
             def __init__(self, outer, num, ext):
                 self._outer = outer
                 self._num = num
                 self._ext = ext
 
             def getState(self):
+                """Gibt den aktuellen Zustand des Schalter zurück
+
+                Returns:
+                    bool: Wahrheitswert ob Schalter gedrückt
+                """
                 return self._outer.getCurrentInput(num - 1, self._ext)
 
+        ext = ftTXT.C_EXT_MASTER
+        wait = True
         M, I = self.getConfig(ext)
         I[num - 1] = (ftTXT.C_SWITCH, ftTXT.C_DIGITAL)
         self.setConfig(M, I, ext)
@@ -2744,14 +2795,30 @@ class ftrobopy(ftTXT):
             self.updateWait()
         return inp(self, num, ext)
 
-    def trailfollower(self, num, ext=ftTXT.C_EXT_MASTER, wait=True):
+    def trailfollower(self, num):
+        """Erzeugt neuen Spursensor
+
+        Args:
+            num (int): Anschlussnummer
+
+        Returns:
+            inp: Objekt mit dem ein Spursensor abgefragt werden kann
+        """
+
         class inp(object):
+            """Klasse für Fischertechnik Spursensoren"""
+
             def __init__(self, outer, num, ext):
                 self._outer = outer
                 self._num = num
                 self._ext = ext
 
             def getState(self):
+                """Gibt den aktuellen Zustand des Spursensors zurück
+
+                Returns:
+                    bool: True für Schwarze Linie, False für keine Linie
+                """
                 # in direct-mode digital 1 is set by motor-shield if voltage is > 600mV
                 if self._outer.getCurrentInput(num - 1, self._ext) == 1:
                     return 1
@@ -2762,6 +2829,8 @@ class ftrobopy(ftTXT):
                     else:
                         return True
 
+        ext = ftTXT.C_EXT_MASTER
+        wait = True
         M, I = self.getConfig(ext)
         I[num - 1] = (ftTXT.C_VOLTAGE, ftTXT.C_DIGITAL)
         self.setConfig(M, I, ext)
