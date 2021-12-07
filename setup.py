@@ -10,6 +10,7 @@ setup(
     name="ijmfttxt",
     version="1.7",
     description="Erweiterung zu ftrobopy",
+    long_description_content_type="text/x-rst",
     long_description=readme(),
     classifiers=[
         "Development Status :: 5 - Production/Stable",

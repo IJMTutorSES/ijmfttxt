@@ -1,3 +1,5 @@
-ijmfttxt - 1.7
+ijmfttxt - 1.6
 ==============
 
+TXT
+===
