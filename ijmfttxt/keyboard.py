@@ -1,5 +1,5 @@
 import pynput
-from typing import Set, Union
+from typing import Set, Union, Callable, Union
 
 
 class Keyboard:
@@ -15,20 +15,7 @@ class Keyboard:
     def __del__(self):
         self.stop()
 
-    @staticmethod
-    def _convert_to_char(key: Union[str, pynput.keyboard.KeyCode]) -> str:
-        try:
-            return key.char
-        except AttributeError:
-            return str(key)[4:]
-
-    def _on_press(self, key: str):
-        self._keys[self._convert_to_char(key)] = True
-
-    def _on_release(self, key: str):
-        self._keys[self._convert_to_char(key)] = False
-
-    def is_pressed(self, key: str) -> bool:
+    def isPressed(self, key: str, count: int = -1) -> bool:
         """Prüft ob gegebene taste oder gegebene Tastenkombination gedrückt ist
 
         Args:
@@ -37,9 +24,18 @@ class Keyboard:
         Returns:
             bool: True für derzeit gedrückt und False für derzeit nicht gedrückt
         """
-        k = key.replace(" ", "").split("+")
+        k = self._extract_keys(key)
         try:
-            return all(map(lambda n: self._keys[n], k))
+            result = 0
+            for n in k:
+                if self._keys[n] != -1:
+                    if self._keys[n] <= count or count == -1:
+                        result += 1
+                    if self._keys[n] <= count:
+                        self._keys[n] += 1
+                else:
+                    return False
+            return result == len(k)
         except KeyError:
             return False
 
@@ -54,6 +50,26 @@ class Keyboard:
     def stop(self):
         """Stoppt den Listener"""
         self._listener.stop()
+
+    @staticmethod
+    def _convert_to_char(key: Union[str, pynput.keyboard.KeyCode]) -> str:
+        try:
+            return key.char
+        except AttributeError:
+            return str(key)[4:]
+
+    @staticmethod
+    def _extract_keys(keykombo: str) -> List[str]:
+        return keykombo.replace(" ", "").split("+")
+
+    def _on_press(self, key: str):
+        if not self._convert_to_char(key) in self._keys.keys():
+            self._keys[self._convert_to_char(key)] = 1
+        elif self._keys[self._convert_to_char(key)] == -1:
+            self._keys[self._convert_to_char(key)] = 1
+
+    def _on_release(self, key: str):
+        self._keys[self._convert_to_char(key)] = -1
 
 
 class Mouse:
@@ -91,17 +107,13 @@ class Mouse:
 
 def _test():
     keyboard = Keyboard()
-    mouse = Mouse()
     running = True
     while running:
-        if keyboard.is_pressed("e"):
+        if keyboard.isPressed("a", 5):
+            print("hi")
+        if keyboard.isPressed("e"):
             running = False
-        elif keyboard.is_pressed("a"):
-            print("Hello World!")
-        if mouse.is_pressed("right"):
-            print("Hello Peter")
     keyboard.stop()
-    mouse.stop()
 
 
 if __name__ == "__main__":

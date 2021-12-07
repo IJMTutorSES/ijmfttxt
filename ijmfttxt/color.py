@@ -188,7 +188,7 @@ class Color:
         return self._l
 
     @property
-    def color(self) -> str:
+    def name(self) -> str:
         """Gibt bestüberinstimmenden Farbenname zurück
 
         Returns:

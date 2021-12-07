@@ -1,19 +1,19 @@
 import ijmfttxt
 
 # Initialize and setup Connection to TXT Controller
-TXT = ijmfttxt.TXT()
+txt = ijmfttxt.TXT()
 
 # Get Motor connected to Output 1
-motor_hl = TXT.motor(1)
+motor_hl = txt.motor(1)
 # Get Motor connected to Output 2
-motor_vl = TXT.motor(2)
+motor_vl = txt.motor(2)
 # Get Motor connected to Output 3
-motor_vr = TXT.motor(3)
+motor_vr = txt.motor(3)
 # Get Motor connected to Output 4
-motor_hr = TXT.motor(4)
+motor_hr = txt.motor(4)
 
 # Get proximity sensor connected via i2c-connection
-gesture_sensor = TXT.gestureSensor()
+gesture_sensor = txt.gestureSensor()
 
 # Turn gesture sensor on
 gesture_sensor.turnOn()
@@ -34,10 +34,10 @@ def controll_robot(ud, lr):
         motor_hr.setSpeed(8 * -lr)
     else:
         # Stop
-        motor_hl.setSpeed(0)
-        motor_vl.setSpeed(0)
-        motor_vr.setSpeed(0)
-        motor_hr.setSpeed(0)
+        motor_hl.stop()
+        motor_vl.stop()
+        motor_vr.stop()
+        motor_hr.stop()
 
 
 # Direction for forwards/backwards

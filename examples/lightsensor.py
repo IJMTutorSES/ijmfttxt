@@ -1,11 +1,12 @@
 import time
+
 import ijmfttxt
 
 # Initialize and setup Connection to TXT Controller
-TXT = ijmrobopy.TXT()
+txt = ijmfttxt.TXT()
 
 # Get light sensor connect via i2c-connection
-light_sensor = TXT.lightSensor()
+light_sensor = txt.lightSensor()
 
 # Turn the light sensor on
 light_sensor.turnOn()
