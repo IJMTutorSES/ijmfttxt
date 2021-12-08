@@ -1,3 +1,5 @@
+from time import sleep
+
 from . import ftrobopy
 from .apds import Apds
 from . import color
@@ -8,6 +10,14 @@ class TXT(ftrobopy.ftrobopy):
 
     def __init__(self):
         super().__init__("auto")
+
+    def sleep(self, secs: float):
+        """Pausiert das Programm für gegebene Zeit
+
+        Args:
+            secs (float): Zeit in Sekunden
+        """
+        sleep(secs)
 
     def proximitySensor(self):
         """Erzeugt neuen Abstandsensor

@@ -93,7 +93,7 @@ class Mouse:
             button (str): möglich "left" oder "right"
 
         Returns:
-            bool: True für derzei gedrückt und False für derzeit nicht gedrückt
+            bool: True für derzeit gedrückt und False für derzeit nicht gedrückt
         """
         try:
             return self._buttons[button]
