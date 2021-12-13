@@ -129,6 +129,5 @@ dmypy.json
 .vscode/
 
 #test
-test.py
-_test.py
+test/
 tmp/

@@ -15,6 +15,7 @@ import threading
 import struct
 import time
 from math import sqrt, log
+from typing import List, Any
 
 try:
     import ftTA2py
@@ -30,11 +31,6 @@ __maintainer__ = "Torsten Stuehn"
 __email__ = "stuehn@mailbox.org"
 __status__ = "beta"
 __date__ = "07/04/2021"
-
-try:
-    xrange
-except NameError:
-    xrange = range
 
 
 def version():
@@ -133,53 +129,12 @@ class ftTXT(object):
                     "Error: Transfer Area could not be initialized! Please check if ftTA2py.so exists."
                 )
                 sys.exit(-1)
-        elif self._directmode:
-            if use_extension:
-                print(
-                    "Error: direct-mode does currently not support TXT slave extensions."
-                )
-                sys.exit(-1)
-            import serial
-
-            self._ser_ms = serial.Serial(self._ser_port, 230000, timeout=1)
-            self._sock = None
-            import spidev
-
-            try:
-                self._spi = spidev.SpiDev(1, 0)  # /dev/spidev1.0
-            except error:
-                print(
-                    "Error opening SPI device (this is needed for sound in 'direct'-mode)."
-                )
-                # print(error)
-                self._spi = None
-            if self._spi:
-                self._spi.mode = 3
-                self._spi.bits_per_word = 8
-                self._spi.max_speed_hz = 1000000
-                # reset sound on motor shield
-                res = self._spi.xfer([self.C_SND_CMD_RESET, 0, 0])
-                if res[0] != self.C_SND_MSG_RX_CMD:
-                    print(
-                        "Error: initial sound reset returns: ",
-                        "".join(["0x%02X " % x for x in res]).split(),
-                    )
-                    sys.exit(-1)
-                # check if we are running on original-firmware or on community-firmware
-                # this is only needed to find the original Sound Files
-                if os.path.isdir("/rom"):
-                    self._SoundFilesDir = "/rom/opt/knobloch/SoundFiles/"
-                else:
-                    self._SoundFilesDir = "/opt/knobloch/SoundFiles/"
-                self._SoundFilesList = os.listdir(self._SoundFilesDir)
-                self._SoundFilesList.sort()
-
         else:
             self._sock = socket.socket()
             self._sock.settimeout(5)
             self._sock.connect((self._host, self._port))
             self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self._sock.setblocking(1)
+            self._sock.setblocking(True)
             self._ser_ms = None
             self._i2c_sock = socket.socket()
             self._i2c_sock.settimeout(5)
@@ -392,7 +347,7 @@ class ftTXT(object):
         if len(data) == struct.calcsize(fstr):
             response_id, m_devicename, m_version = struct.unpack(fstr, data)
         else:
-            m_devicename = ""
+            m_devicename = bytes()
             m_version = 0
         if response_id != m_resp_id:
             print(
@@ -408,7 +363,7 @@ class ftTXT(object):
         self._m_firmware = "firmware version " + str(v1) + "." + str(v2) + "." + str(v3)
         return m_devicename, m_version
 
-    def i2c_read(self, dev, reg, reg_len=1, data_len=1, debug=False):
+    def i2c_read(self, dev, reg, reg_len=1, data_len=1, debug=False) -> bytes:
 
         m_id = 0xB9DB3B39
         m_resp_id = 0x87FD0D90
@@ -438,7 +393,6 @@ class ftTXT(object):
                 % hex(response_id),
                 None,
             )
-            return None
         return data[-data_len:]
 
     def i2c_write(self, dev, reg, value, debug=False):
@@ -472,7 +426,7 @@ class ftTXT(object):
             return None
         return True
 
-    def i2c_write_bytes(self, dev, *argv):
+    def i2c_write_bytes(self, dev, debug, *argv):
         m_id = 0xB9DB3B39
         m_resp_id = 0x87FD0D90
 
@@ -620,7 +574,7 @@ class ftTXT(object):
                 time.sleep(0.1)
                 self._i2c_sock.connect((self._host, self._port + 2))
                 self._i2c_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                self._i2c_sock.setblocking(1)
+                self._i2c_sock.setblocking(True)
         return None
 
     def stopOnline(self):
@@ -970,7 +924,7 @@ class ftTXT(object):
 
         return self._sound_repeat[ext]
 
-    def setSoundVolume(self, volume):
+    def setSoundVolume(self, volume: int):
 
         if self._directmode:
             if volume > 100:
@@ -983,7 +937,7 @@ class ftTXT(object):
             if self._sound_current_volume != volume:
                 self._sound_current_volume = volume
                 self._exchange_data_lock.acquire()
-                for i in xrange(0, len(self._sound_data)):
+                for i in range(0, len(self._sound_data)):
                     w = self._sound_current_volume * self._sound_data[i] / 100
                     self._sound_data[i] = int(w) & 0xFF
                 self._sound_data_idx = 0
@@ -998,7 +952,7 @@ class ftTXT(object):
             return self._sound_current_volume
         else:
             print("getSoundVolume() steht nur im 'direct'-Modus zur Verfuegung.")
-            return None
+            return 0
 
     def getCounterCmdId(self, idx=None, ext=C_EXT_MASTER):
 
@@ -1205,7 +1159,7 @@ class ftTXT(object):
 
     def getPower(self, ext=C_EXT_MASTER):
 
-        if self._use_TransferMode:
+        if self._use_TransferAreaMode:
             return ftTA2py.TxtPowerSupply(ext)
         elif self._directmode:
             return self._current_power
@@ -1215,7 +1169,7 @@ class ftTXT(object):
 
     def getTemperature(self, ext=C_EXT_MASTER):
 
-        if self._use_TransferMode:
+        if self._use_TransferAreaMode:
             return ftTA2py.TxtCPUTemperature(ext)
         if self._directmode:
             return self._current_temperature
@@ -2085,7 +2039,7 @@ class ftTXTexchange(threading.Thread):
                             # print(self._recv_crc, response)
                             self._txt._exchange_data_lock.acquire()
 
-                            def conv_null(a, b):
+                            def conv_null(a, b) -> List[Any]:
                                 return [
                                     a[i]
                                     if b[i] == 0
@@ -2261,7 +2215,7 @@ class camera(threading.Thread):
     def run(self):
         self._camera_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._camera_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self._camera_sock.setblocking(1)
+        self._camera_sock.setblocking(True)
         self._total_bytes_read = 0
         camera_ready = False
         fault_count = 0
@@ -2970,7 +2924,97 @@ class ftrobopy(ftTXT):
         return remote(self, buttonnum, remote_number, remote_type)
 
     def joydipswitch(self, remote_type=0):
+        """
+        Diese Funktion erzeugt ein Input-Objekt zur Abfrage des DIP-Schalters einer fischertechnik IR-Fernbedienung.
+        Die Funktion kann nur mit den IR-Fernbedienungen sinnvoll verwendet werden. Die blaue BT-Fernbedienung hat keine DIP-Schalter.
+        :param remote_type: 0: (rote) IR Infrarot-Fernbedienung, 1: (blaue) BT Bluetooth-Fernbedienung
+        Dieser Parameter ist nur aus Gruenden der Kompatibilitaet vorhanden. Die BT-Fernbedienung hat keine DIP-Schalter.
 
+        Anwendungsbeispiel:
+
+        >>> IR_DipSchalter = ftrob.joydipswitch()
+
+        Das so erzeugte Button-Objekt hat die folgende Methode:
+
+        **setting** ()
+
+        Mit dieser Methode wird die DIP-Schalter-Einstellung abgefragt:
+
+        + OFF OFF  = 0
+        + ON  OFF  = 1
+        + OFF ON   = 2
+        + ON  ON   = 3
+        :return: Wert des DIP-Schalters (0-3). Der Rueckgabewert bei Verwendung der BT-Fernbedienung ist hier immer 0.
+        :rtype: integer
+
+        Anwendungsbeispiel:
+
+        >>> IR_DipSchalter = ftrob.joydipswitch()
+        >>> print("Die aktuelle Einstellung des DIP-Schalters ist: ", IR_DipSchalter.setting())
+        """
+
+        class remote(object):
+            def __init__(self, outer, remote_type):
+                # remote_type: IR=0, BT=1
+                self._outer = outer
+                self._remote_type = remote_type
+
+            def setting(self):
+                if remote_type == 0:  # IR remote
+                    return self._outer._ir_current_dip_switch[0]
+                else:  # BT remote has no dip switches
+                    return 0
+
+        return remote(self, remote_type)
+
+    def sound_finished(self, ext=ftTXT.C_EXT_MASTER):
+        if self._current_sound_cmd_id[ext] == self.getSoundCmdId(ext):
+            return True
+        else:
+            return False
+
+    def play_sound(self, idx, repeat=1, volume=100, ext=ftTXT.C_EXT_MASTER):
+        """
+        *  0 : Kein Sound (=Soundausgabe stoppen)
+        *  1 : Flugzeug
+        *  2 : Alarm
+        *  3 : Glocke
+        *  4 : Bremsen
+        *  5 : Autohupe (kurz)
+        *  6 : Autohipe (lang)
+        *  7 : Brechendes Holz
+        *  8 : Bagger
+        *  9 : Fantasie 1
+        * 10 : Fantasie 2
+        * 11 : Fantasie 3
+        * 12 : Fantasie 4
+        * 13 : Bauernhof
+        * 14 : Feuerwehrsirene
+        * 15 : Feuerstelle
+        * 16 : Formel 1 Auto
+        * 17 : Hubschrauber
+        * 18 : Hydraulik
+        * 19 : Laufender Motor
+        * 20 : Startender Motor
+        * 21 : Propeller-Flugzeug
+        * 22 : Achterbahn
+        * 23 : Schiffshorn
+        * 24 : Traktor
+        * 25 : LKW
+        * 26 : Augenzwinkern
+        * 27 : Fahrgeraeusch
+        * 28 : Kopf heben
+        * 29 : Kopf neigen
+
+        :param idx: Nummer des Sounds
+        :type idx: integer
+
+        :param repeat: Anzahl der Wiederholungen (default=1)
+        :type repeat: integer
+
+        :param volume: Lautstaerke, mit der der Sound abgespielt wird (0=nicht hoehrbar, 100=maximale Lautstaerke, default=100). Die Lautstaerke kann nur im 'direct'-Modus veraendert werden.
+        :type volume: integer
+        """
         if idx != self.getSoundIndex(ext):
             self.setSoundIndex(idx, ext)
         if volume != self.getSoundVolume and self._directmode:

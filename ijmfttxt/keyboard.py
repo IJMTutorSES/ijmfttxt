@@ -1,5 +1,5 @@
 import pynput
-from typing import Set, Union, Callable, Union
+from typing import Set, Union, Callable, Union, List
 
 
 class Keyboard:
@@ -8,7 +8,7 @@ class Keyboard:
     def __init__(self):
         self._keys = {}
         self._listener = pynput.keyboard.Listener(
-            on_press=self._on_press, on_release=self._on_release
+            on_press=self._on_press, on_release=self._on_release, suppress=True
         )
         self._listener.start()
 
@@ -45,7 +45,7 @@ class Keyboard:
         Returns:
             Set[str]: Tastennamen in englisch und in Kleinbuchstaben
         """
-        return self._keys.keys()
+        return [k for k in self._keys.keys() if self._keys[k] != -1]
 
     def stop(self):
         """Stoppt den Listener"""
@@ -62,14 +62,17 @@ class Keyboard:
     def _extract_keys(keykombo: str) -> List[str]:
         return keykombo.replace(" ", "").split("+")
 
-    def _on_press(self, key: str):
+    def _on_press(self, key):
         if not self._convert_to_char(key) in self._keys.keys():
             self._keys[self._convert_to_char(key)] = 1
         elif self._keys[self._convert_to_char(key)] == -1:
             self._keys[self._convert_to_char(key)] = 1
 
-    def _on_release(self, key: str):
+    def _on_release(self, key):
         self._keys[self._convert_to_char(key)] = -1
+
+    def _win32_event_filter(msg, data):
+        return True
 
 
 class Mouse:
@@ -109,8 +112,6 @@ def _test():
     keyboard = Keyboard()
     running = True
     while running:
-        if keyboard.isPressed("a", 5):
-            print("hi")
         if keyboard.isPressed("e"):
             running = False
     keyboard.stop()

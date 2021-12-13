@@ -1,38 +1,38 @@
 import struct
 import time
-from typing import ByteString, Tuple, Union
+from typing import List, Tuple, Union
 
 from . import ftrobopy
 from .constants import *
 
 
 class Apds:
-    _singelton: "Apds" = None
+    _singelton: "Apds"
 
     def __new__(cls, *args, **kwargs):
         if not cls._singelton:
             cls._singelton = super().__new__(cls, *args, **kwargs)
         return cls._singelton
 
-    def __init__(self):
-        _TXT: ftrobopy.ftTXT = None
-        gesdata_up = [0 for _ in range(32)]
-        gesdata_down = [0 for _ in range(32)]
-        gesdata_left = [0 for _ in range(32)]
-        gesdata_right = [0 for _ in range(32)]
-        gesdata_index = 0
-        gesdata_total = 0
-        gesmotion = None
-        ud_delta = 0
-        lr_delta = 0
-        ud_count = 0
-        lr_count = 0
-        near_count = 0
-        far_count = 0
-        state = 0
-        THRESHOLD = 10
-        SENS1 = 15
-        SENS2 = 50
+    def __init__(self, outer):
+        self._TXT: ftrobopy.ftTXT = outer
+        self.gesdata_up = [0 for _ in range(32)]
+        self.gesdata_down = [0 for _ in range(32)]
+        self.gesdata_left = [0 for _ in range(32)]
+        self.gesdata_right = [0 for _ in range(32)]
+        self.gesdata_index = 0
+        self.gesdata_total = 0
+        self.gesmotion = "None"
+        self.ud_delta = 0
+        self.lr_delta = 0
+        self.ud_count = 0
+        self.lr_count = 0
+        self.near_count = 0
+        self.far_count = 0
+        self.state = 0
+        self.THRESHOLD = 10
+        self.SENS1 = 15
+        self.SENS2 = 50
 
         self.reset()
 
@@ -92,7 +92,7 @@ class Apds:
         self._set(ENABLE, ENABLE_PEN, False)
 
     def get_proximity(self) -> int:
-        return self._read(PDATA)
+        return self._read(PDATA)[0]
 
     def enable_light(self):
         self._set(CONTROL, AGAIN_DEFAULT, mask=AGAIN_MASK)
@@ -102,7 +102,7 @@ class Apds:
     def disable_light(self):
         self._set(ENABLE, ENABLE_AEN, False)
 
-    def get_rgbc(self) -> Tuple[int]:
+    def get_rgbc(self) -> List[int]:
         return self._read(CDATAL, register_len=2, data_len=8)
 
     def enable_gesture(self):
@@ -149,7 +149,7 @@ class Apds:
         self.near_count = 0
         self.far_count = 0
         self.state = 0
-        self.gesmotion = None
+        self.gesmotion = "None"
 
     def get_gesture(self) -> Union[bool, str]:
         fifo_level = 0
@@ -327,11 +327,10 @@ class Apds:
 
     def _read(
         self, register: int, register_len: int = 1, data_len: int = 1, debug=False
-    ) -> Union[Tuple[int], ByteString]:
+    ) -> List[int]:
         buffer = self._TXT.i2c_read(ADR, register, data_len=data_len, debug=debug)
         if register_len == 1:
-            return struct.unpack("<" + "B" * data_len, buffer)
+            return list(struct.unpack("<" + "B" * data_len, buffer))
         elif register_len == 2:
-            return struct.unpack("<" + "H" * (data_len // 2), buffer)
-        else:
-            return buffer
+            return list(struct.unpack("<" + "H" * (data_len // 2), buffer))
+        return [0] * (data_len // 2)

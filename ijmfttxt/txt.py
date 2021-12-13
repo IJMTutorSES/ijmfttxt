@@ -1,4 +1,4 @@
-from time import sleep
+from typing import Union
 
 from . import ftrobopy
 from .apds import Apds
@@ -10,14 +10,6 @@ class TXT(ftrobopy.ftrobopy):
 
     def __init__(self):
         super().__init__("auto")
-
-    def sleep(self, secs: float):
-        """Pausiert das Programm für gegebene Zeit
-
-        Args:
-            secs (float): Zeit in Sekunden
-        """
-        sleep(secs)
 
     def proximitySensor(self):
         """Erzeugt neuen Abstandsensor
@@ -97,17 +89,14 @@ class TXT(ftrobopy.ftrobopy):
             def __init__(self, outer):
                 self.apds = Apds(outer)
 
-            @staticmethod
             def turnOn(self):
                 """Schaltet den Sensor an"""
                 self.apds.enable_light()
 
-            @staticmethod
             def turnOff(self):
                 """Schaltet den Sensor aus"""
                 self.apds.disable_light()
 
-            @staticmethod
             def getColor(self) -> color.Color:
                 """Gibt gemessene Farbwerte zurück
 
@@ -139,7 +128,7 @@ class TXT(ftrobopy.ftrobopy):
                 """Schaltet den Sensor aus"""
                 self.apds.disable_gesture()
 
-            def getGesture(self) -> str:
+            def getGesture(self) -> Union[str, bool]:
                 """Gibt erkannte Geste zurück
 
                 Returns:
