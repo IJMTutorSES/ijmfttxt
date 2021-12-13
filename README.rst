@@ -1,10 +1,14 @@
-=====
-Title
-=====
-Subtitle
+==============
+ijmfttxt 1.7.2
+==============
+Docs
 --------
 
-See following example:
+TXT
+
+name
+    Hallo World
+
 
 .. code-block:: python
     
