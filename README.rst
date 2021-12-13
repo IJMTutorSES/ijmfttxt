@@ -1,5 +1,13 @@
-ijmfttxt - 1.7.2
-================
+=====
+Title
+=====
+Subtitle
+--------
 
-TXT
-===
+See following example:
+
+.. code-block:: python
+    
+    a = 'b'
+    if a == 'b':
+        print("Hello World")
