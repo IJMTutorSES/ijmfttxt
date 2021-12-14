@@ -10,8 +10,8 @@ class Apds:
     _singelton: "Apds"
 
     def __new__(cls, *args, **kwargs):
-        if not cls._singelton:
-            cls._singelton = super().__new__(cls, *args, **kwargs)
+        if not hasattr(cls, "_singelton"):
+            cls._singelton = super().__new__(cls)
         return cls._singelton
 
     def __init__(self, outer):
@@ -334,3 +334,6 @@ class Apds:
         elif register_len == 2:
             return list(struct.unpack("<" + "H" * (data_len // 2), buffer))
         return [0] * (data_len // 2)
+
+
+a = Apds("a")

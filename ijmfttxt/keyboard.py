@@ -1,5 +1,5 @@
 import pynput
-from typing import Set, Union, Callable, Union, List
+from typing import Union, Union, List
 
 
 class Keyboard:
@@ -39,7 +39,7 @@ class Keyboard:
         except KeyError:
             return False
 
-    def keys_pressed(self) -> Set[str]:
+    def keys_pressed(self) -> List[str]:
         """Gibt alle derzeit gedrückten Tasten
 
         Returns:
@@ -71,7 +71,7 @@ class Keyboard:
     def _on_release(self, key):
         self._keys[self._convert_to_char(key)] = -1
 
-    def _win32_event_filter(msg, data):
+    def _win32_event_filter(self, msg, data):
         return True
 
 
