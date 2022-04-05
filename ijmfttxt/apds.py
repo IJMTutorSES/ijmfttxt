@@ -1,6 +1,6 @@
 import struct
 import time
-from typing import List, Tuple, Union
+from typing import List, Union
 
 from . import ftrobopy
 from .constants import *
@@ -79,7 +79,6 @@ class Apds:
                 val = res | data
             else:
                 return False
-            print(res, data, val)
             return self._write(register, val)
 
     def enable_proximity(self):
@@ -164,7 +163,6 @@ class Apds:
             gstatus = self._read(GSTATUS)[0]
             if (gstatus & GSTATUS_GVALID) == GSTATUS_GVALID:
                 fifo_level = self._read(GFLVL)[0]
-                print(f"{fifo_level=}")
                 if fifo_level > 0:
                     fifo_data = self._read(GFIFO, data_len=4 * fifo_level)
                     bytes_read = len(fifo_data)
@@ -177,15 +175,13 @@ class Apds:
                             self.gesdata_index += 1
                             self.gesdata_total += 1
                         if self.process_data():
-                            if self.decode_gesture():
-                                print(self.gesmotion)
+                            self.decode_gesture()
                         self.gesdata_index = 0
                         self.gesdata_total = 0
             else:
                 time.sleep(0.03)
                 self.decode_gesture()
                 motion = self.gesmotion
-                print(self.gesmotion)
                 self.reset_gesture_param()
                 return motion
 
@@ -336,4 +332,4 @@ class Apds:
         return [0] * (data_len // 2)
 
 
-a = Apds("a")
+

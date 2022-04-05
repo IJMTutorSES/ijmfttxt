@@ -1,14 +1,14 @@
-from typing import Tuple, List
+from typing import Tuple, Dict, Union
 
 
-COLORS = {
+COLORS: Dict[str, Tuple[int, int]] = {
     "Rot1": (340, 360),
     "Grün": (70, 160),
     "Blau": (195, 265),
     "Gelb": (40, 70),
     "Türkis": (160, 195),
     "Magenta": (285, 340),
-    "Red2": (0, 15),
+    "Rot2": (0, 15),
     "Orange": (15, 40),
     "Violett": (265, 285),
 }
@@ -17,7 +17,7 @@ COLORS = {
 class Color:
     """Klasse zum speichern verschiedenster Farbwerte"""
 
-    def __init__(self, raw_clear, raw_red, raw_green, raw_blue):
+    def __init__(self, raw_clear: int, raw_red: int, raw_green: int, raw_blue: int):
         # raw color datat
         self._rc = raw_clear
         self._rr = raw_red
@@ -25,19 +25,19 @@ class Color:
         self._rb = raw_blue
 
         # rgb color data
-        self._r, self._g, self._b = self.raw_to_rgb()
+        self._r, self._g, self._b = self._raw_to_rgb()
 
         # hsv color data
-        self._h, self._s, self._v = self.rgb_to_hsv()
+        self._h, self._s, self._v = self._rgb_to_hsv()
 
         # hls colo data
         self._s2, self._l = self._rgb_to_hls()
 
         # display color data
-        self._dr, self._dg, self._db = self.rgb_to_dis()
+        self._dr, self._dg, self._db = self._rgb_to_dis()
 
     @property
-    def raw(self) -> Tuple[int]:
+    def raw(self) -> Tuple[int, int, int]:
         """Raw-RGB-Color-Daten
 
         Returns:
@@ -46,7 +46,7 @@ class Color:
         return self._rr, self._rg, self._rb
 
     @property
-    def rawc(self) -> Tuple[float]:
+    def rawc(self) -> Tuple[int, int, int, int]:
         """Raw-RGBC-Color-Daten
 
         Returns:
@@ -55,7 +55,7 @@ class Color:
         return self._rc, self._rr, self._rg, self._rb
 
     @property
-    def rgb(self) -> Tuple[float]:
+    def rgb(self) -> Tuple[float, float, float]:
         """RGB-Color-Daten
 
         Returns:
@@ -64,7 +64,7 @@ class Color:
         return self._r, self._g, self._b
 
     @property
-    def hsv(self) -> Tuple[float]:
+    def hsv(self) -> Tuple[float, float, float]:
         """HSV-Color-Daten
 
         Returns:
@@ -73,7 +73,7 @@ class Color:
         return self._h, self._s, self._v
 
     @property
-    def hsl(self) -> Tuple[float]:
+    def hsl(self) -> Tuple[float, float, float]:
         """HSL-Color-Daten
 
         Returns:
@@ -82,7 +82,7 @@ class Color:
         return self._h, self._s2, self._l
 
     @property
-    def drgb(self) -> Tuple[int]:
+    def drgb(self) -> Tuple[int, int, int]:
         """Display-RGB-Color-Daten
 
         Returns:
@@ -188,7 +188,7 @@ class Color:
         return self._l
 
     @property
-    def name(self) -> str:
+    def name(self) -> Union[None, str]:
         """Gibt bestüberinstimmenden Farbenname zurück
 
         Returns:
@@ -210,13 +210,14 @@ class Color:
                 else:
                     return k
 
-    def _raw_to_rgb(self) -> Tuple[float]:
+    def _raw_to_rgb(self) -> Tuple[float, float, float]:
         max_color = max(self.raw)
         return self._rr / max_color, self._rg / max_color, self._rb / max_color
 
-    def _rgb_to_hsv(self) -> Tuple[float]:
+    def _rgb_to_hsv(self) -> Tuple[float, float, float]:
         max_color = max(self._r, self._g, self._b)
         min_color = min(self._r, self._g, self._b)
+        hue = 0
         if max_color == min_color:
             hue = 0
         elif max_color == self._r:
@@ -234,7 +235,7 @@ class Color:
         value = max_color
         return hue, sat, value
 
-    def _rgb_to_hls(self) -> Tuple[float]:
+    def _rgb_to_hls(self) -> Tuple[float, float]:
         max_color = max(self._r, self._g, self._b)
         min_color = min(self._r, self._g, self._b)
         if max_color == 0 or min_color == 1:
@@ -244,7 +245,7 @@ class Color:
         lum = (max_color + min_color) / 2
         return sat, lum
 
-    def _rgb_to_dis(self) -> Tuple[int]:
+    def _rgb_to_dis(self) -> Tuple[int, int, int]:
         return int(self._r * 255), int(self._g * 255), int(self._b * 255)
 
     def __repr__(self) -> str:

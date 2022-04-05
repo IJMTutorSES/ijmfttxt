@@ -1,17 +1,4 @@
-============
-ijmfttxt 1.8
-============
-Docs
---------
+==============
+ijmfttxt 1.8.1
+==============
 
-TXT
-
-name
-    Hallo World
-
-
-.. code-block:: python
-    
-    a = 'b'
-    if a == 'b':
-        print("Hello World")

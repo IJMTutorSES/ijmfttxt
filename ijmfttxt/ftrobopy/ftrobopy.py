@@ -2773,15 +2773,7 @@ class ftrobopy(ftTXT):
                 Returns:
                     bool: True für Schwarze Linie, False für keine Linie
                 """
-                # in direct-mode digital 1 is set by motor-shield if voltage is > 600mV
-                if self._outer.getCurrentInput(num - 1, self._ext) == 1:
-                    return 1
-                else:
-                    # threshold in mV between digital 0 and 1. Use voltage()-Function instead, if analog value of trailfollower is needed.
-                    if self._outer.getCurrentInput(num - 1, self._ext) > 600:
-                        return False
-                    else:
-                        return True
+                return bool(self._outer.getCurrentInput(num - 1, self._ext) == 1)
 
         ext = ftTXT.C_EXT_MASTER
         wait = True
