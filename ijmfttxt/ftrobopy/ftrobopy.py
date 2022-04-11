@@ -17,6 +17,10 @@ import time
 from math import sqrt, log
 from typing import List, Any
 
+from black import out
+
+from ..errors import error_handler, type_checker, UserValueError
+
 try:
     import ftTA2py
 except:
@@ -2458,6 +2462,8 @@ class ftrobopy(ftTXT):
             if self._ser_ms:
                 self._ser_ms.close()
 
+    @type_checker([int])
+    @error_handler
     def motor(self, output):
         """Erzeugt neuen Motor
 
@@ -2467,6 +2473,8 @@ class ftrobopy(ftTXT):
         Returns:
             mot: Objekt mit dem ein Motor gesteuert werden kann
         """
+        if not (1 <= output <= 4):
+            raise UserValueError
 
         class mot(object):
             """Klasse für fischertechnik Motoren"""
@@ -2482,12 +2490,17 @@ class ftrobopy(ftTXT):
                 self.setDistance(0)
                 self._outer._exchange_data_lock.release()
 
+            @type_checker([int])
+            @error_handler
             def setSpeed(self, speed):
                 """Aktualisiert die Drehgeschwindigkeit des Motors
 
                 Args:
                     speed (int): Zahl zwischen -8 und 8
                 """
+                if not (-8 <= speed <= 8):
+                    raise UserValueError
+
                 c_speed = int(200 / 8 * int(speed) + 312)
                 if c_speed == self._speed:
                     return
@@ -2552,6 +2565,7 @@ class ftrobopy(ftTXT):
                     idx=self._output - 1, ext=self._ext
                 )
 
+            @error_handler
             def stop(self):
                 """Stoppt den Motor"""
                 self._outer._exchange_data_lock.acquire()
@@ -2569,6 +2583,8 @@ class ftrobopy(ftTXT):
             self.updateWait()
         return mot(self, output, ext)
 
+    @type_checker([int], {"level": int})
+    @error_handler
     def led(self, num, level=0):
         """Erzeugt neue lampe
 
@@ -2580,22 +2596,29 @@ class ftrobopy(ftTXT):
             out: Objekt mit dem eine Lampe gesteuert werden kann
         """
 
+        if not (1 <= num <= 4):
+            raise UserValueError
+
         class led(object):
             """Klasse für fischertechnik Leds"""
 
             def __init__(self, outer, num, level, ext):
                 self._outer = outer
                 self._num = num
-                self._level = level
+                self._level = 0
                 self._ext = ext
                 self.setLevel(level)
 
+            @type_checker([int])
+            @error_handler
             def setLevel(self, level):
                 """Aktualisiert die Helligkeit der lampe
 
                 Args:
                     level (int): Zahl zwischen 0 und 512
                 """
+                if not (0 <= level <= 512):
+                    raise UserValueError
                 self._level = level
                 self._outer._exchange_data_lock.acquire()
                 self._outer.setPwm(num - 1, self._level, self._ext)
@@ -2611,6 +2634,8 @@ class ftrobopy(ftTXT):
             self.updateWait()
         return led(self, num, level, ext)
 
+    @type_checker([int])
+    @error_handler
     def button(self, num):
         """Erzeut neuen Schalter
 
@@ -2620,6 +2645,8 @@ class ftrobopy(ftTXT):
         Returns:
             inp: Objekt mit dem ein Schalter abgefragt werden kann
         """
+        if not (1 <= num <= 8):
+            raise UserValueError
 
         class inp(object):
             """Klasse für Fischertechnik Schalter"""
@@ -2629,6 +2656,7 @@ class ftrobopy(ftTXT):
                 self._num = num
                 self._ext = ext
 
+            @error_handler
             def getState(self):
                 """Gibt den aktuellen Zustand des Schalter zurück
 
@@ -2749,6 +2777,8 @@ class ftrobopy(ftTXT):
             self.updateWait()
         return inp(self, num, ext)
 
+    @type_checker([int])
+    @error_handler
     def trailfollower(self, num):
         """Erzeugt neuen Spursensor
 
@@ -2759,6 +2789,9 @@ class ftrobopy(ftTXT):
             inp: Objekt mit dem ein Spursensor abgefragt werden kann
         """
 
+        if not (1 <= num <= 8):
+            raise UserValueError
+
         class inp(object):
             """Klasse für Fischertechnik Spursensoren"""
 
@@ -2767,6 +2800,7 @@ class ftrobopy(ftTXT):
                 self._num = num
                 self._ext = ext
 
+            @error_handler
             def getState(self):
                 """Gibt den aktuellen Zustand des Spursensors zurück
 

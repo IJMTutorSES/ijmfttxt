@@ -1,10 +1,13 @@
 import pynput
-from typing import Union, Union, List
+from typing import Union, List
+
+from .errors import type_checker, UserValueError, error_handler
 
 
 class Keyboard:
     """Klasse für Keyboardlistener Funktionen"""
 
+    @error_handler
     def __init__(self):
         self._keys = {}
         self._listener = pynput.keyboard.Listener(
@@ -12,9 +15,12 @@ class Keyboard:
         )
         self._listener.start()
 
+    @error_handler
     def __del__(self):
         self.stop()
 
+    @type_checker([str], {"count": int})
+    @error_handler
     def isPressed(self, key: str, count: int = -1) -> bool:
         """Prüft ob gegebene taste oder gegebene Tastenkombination gedrückt ist
 
@@ -37,8 +43,9 @@ class Keyboard:
                     return False
             return result == len(k)
         except KeyError:
-            return False
+            return UserValueError
 
+    @error_handler
     def keys_pressed(self) -> List[str]:
         """Gibt alle derzeit gedrückten Tasten
 
@@ -47,6 +54,7 @@ class Keyboard:
         """
         return [k for k in self._keys.keys() if self._keys[k] != -1]
 
+    @error_handler
     def stop(self):
         """Stoppt den Listener"""
         self._listener.stop()
@@ -62,12 +70,14 @@ class Keyboard:
     def _extract_keys(keykombo: str) -> List[str]:
         return keykombo.replace(" ", "").split("+")
 
+    @error_handler
     def _on_press(self, key):
         if not self._convert_to_char(key) in self._keys.keys():
             self._keys[self._convert_to_char(key)] = 1
         elif self._keys[self._convert_to_char(key)] == -1:
             self._keys[self._convert_to_char(key)] = 1
 
+    @error_handler
     def _on_release(self, key):
         self._keys[self._convert_to_char(key)] = -1
 
@@ -78,17 +88,22 @@ class Keyboard:
 class Mouse:
     """Klasse für Mouselistener Funktionen"""
 
+    @error_handler
     def __init__(self):
         self._buttons = {}
         self._listener = pynput.mouse.Listener(on_click=self._on_click)
         self._listener.start()
 
+    @error_handler
     def __del__(self):
         self.stop()
 
+    @error_handler
     def _on_click(self, *args):
         self._buttons[str(args[2])[7:]] = args[3]
 
+    @type_checker([str])
+    @error_handler
     def is_pressed(self, button: str) -> bool:
         """Prüft ob gegebene Mausttaste gedrückt ist
 
@@ -101,8 +116,9 @@ class Mouse:
         try:
             return self._buttons[button]
         except KeyError:
-            return False
+            raise UserValueError
 
+    @error_handler
     def stop(self):
         """Stoppt den Listener"""
         self._listener.stop()

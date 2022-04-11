@@ -1,6 +1,8 @@
 import time
 from typing import Union, overload
 
+from .errors import error_handler, type_checker
+
 
 class Clock:
     _waiting = False
@@ -23,6 +25,8 @@ class Clock:
         ...
 
     @classmethod
+    @type_checker(["NUMBER"])
+    @error_handler
     def sleep(cls, secs: Union[str, float, int]):
         time.sleep(float(secs))
 
@@ -42,6 +46,8 @@ class Clock:
         ...
 
     @classmethod
+    @type_checker(["NUMBER"])
+    @error_handler
     def wait(cls, secs: Union[str, float, int]) -> bool:
         if cls._waiting:
             cls._waited = time.time() - cls._started

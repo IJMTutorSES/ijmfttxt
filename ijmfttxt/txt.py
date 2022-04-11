@@ -4,13 +4,17 @@ from . import ftrobopy
 from .apds import Apds
 from . import color
 
+from .errors import error_handler
+
 
 class TXT(ftrobopy.ftrobopy):
     """Klassen-Wrapper für ftrobopy Klasse von ftrobopy mit zusätzlicher Unterstützung des Fischertechnik RGB Gesture Sensors"""
 
+    @error_handler
     def __init__(self):
         super().__init__("auto")
 
+    @error_handler
     def proximitySensor(self):
         """Erzeugt neuen Abstandsensor
 
@@ -24,14 +28,17 @@ class TXT(ftrobopy.ftrobopy):
             def __init__(self, outer):
                 self.apds = Apds(outer)
 
+            @error_handler
             def turnOn(self):
                 """Schaltet den Sensor an"""
                 self.apds.enable_proximity()
 
+            @error_handler
             def turnOff(self):
                 """Schaltet den Sensor aus"""
                 self.apds.disable_proximity()
 
+            @error_handler
             def getDistance(self) -> int:
                 """Gibt den gemessen Abstand zurück
 
@@ -42,6 +49,7 @@ class TXT(ftrobopy.ftrobopy):
 
         return prox(self)
 
+    @error_handler
     def lightSensor(self):
         """Erzeugt neuen Lichtsensor
 
@@ -55,14 +63,17 @@ class TXT(ftrobopy.ftrobopy):
             def __init__(self, outer):
                 self.apds = Apds(outer)
 
+            @error_handler
             def turnOn(self):
                 """Schaltet den Sensor an"""
                 self.apds.enable_light()
 
+            @error_handler
             def turnOff(self):
                 """Schaltet den Sensor aus"""
                 self.apds.disable_light()
 
+            @error_handler
             def getBrightness(self) -> int:
                 """Gibt gemessene Helligkeit zurück
 
@@ -76,6 +87,7 @@ class TXT(ftrobopy.ftrobopy):
 
         return light(self)
 
+    @error_handler
     def colorSensor(self):
         """Erzeugt neuen Farbsensor
 
@@ -89,14 +101,17 @@ class TXT(ftrobopy.ftrobopy):
             def __init__(self, outer):
                 self.apds = Apds(outer)
 
+            @error_handler
             def turnOn(self):
                 """Schaltet den Sensor an"""
                 self.apds.enable_light()
 
+            @error_handler
             def turnOff(self):
                 """Schaltet den Sensor aus"""
                 self.apds.disable_light()
 
+            @error_handler
             def getColor(self) -> color.Color:
                 """Gibt gemessene Farbwerte zurück
 
@@ -107,6 +122,7 @@ class TXT(ftrobopy.ftrobopy):
 
         return col(self)
 
+    @error_handler
     def gestureSensor(self):
         """Erzeugt neuen Gestensensor
 
@@ -120,14 +136,17 @@ class TXT(ftrobopy.ftrobopy):
             def __init__(self, outer):
                 self.apds = Apds(outer)
 
+            @error_handler
             def turnOn(self):
                 """Schaltet den Sensor an"""
                 self.apds.enable_gesture()
 
+            @error_handler
             def turnOff(self):
                 """Schaltet den Sensor aus"""
                 self.apds.disable_gesture()
 
+            @error_handler
             def getGesture(self) -> Union[str, bool]:
                 """Gibt erkannte Geste zurück
 

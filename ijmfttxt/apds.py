@@ -73,9 +73,9 @@ class Apds:
         else:
             res = self._read(register)[0]
             bit = res & data
-            if bit != 0 and enable == False:
+            if bit != 0 and enable is False:
                 val = res ^ data
-            elif bit == 0 and enable == True:
+            elif bit == 0 and enable is True:
                 val = res | data
             else:
                 return False
@@ -330,6 +330,3 @@ class Apds:
         elif register_len == 2:
             return list(struct.unpack("<" + "H" * (data_len // 2), buffer))
         return [0] * (data_len // 2)
-
-
-

@@ -1,5 +1,7 @@
 from typing import Tuple, Dict, Union
 
+from ijmfttxt.errors import error_handler
+
 
 COLORS: Dict[str, Tuple[int, int]] = {
     "Rot1": (340, 360),
