@@ -16,12 +16,16 @@ class UserError(Exception):
 
 class UserValueError(UserError):
     def __init__(self):
-        super().__init__("Überprüfe welche Werte übergeben werden müssen! Weitere Infos findest du im Errorsheet (3.0.6) unter ValueError. (Dies ist ein Fehler, der in deinem Skript entstanden ist!)")
+        super().__init__(
+            "Überprüfe welche Werte übergeben werden müssen! Weitere Infos findest du im Errorsheet (3.0.6) unter ValueError. (Dies ist ein Fehler, der in deinem Skript entstanden ist!)"
+        )
 
 
 class UserTypeError(UserError):
     def __init__(self):
-        super().__init__("Überprüfe welcher Typ erwartet wird! Weiter Infos findest du im Errorsheet (3.0.6) unter TypeError. (Dies ist ein Fehler, der in deinem Skript entstanden ist!)")
+        super().__init__(
+            "Überprüfe welcher Typ erwartet wird! Weiter Infos findest du im Errorsheet (3.0.6) unter TypeError. (Dies ist ein Fehler, der in deinem Skript entstanden ist!)"
+        )
 
 
 def type_checker(t_args=None, t_kwargs=None):
@@ -40,15 +44,15 @@ def type_checker(t_args=None, t_kwargs=None):
     def wrapper(func):
         def decorator(*args, **kwargs):
             if t_args:
-                for i, arg in enumerate(args[len(args)-len(t_args):]):
-                    if not isinstance(arg, t := t_args[i]):
+                for i, arg in enumerate(args[len(args) - len(t_args) :]):
+                    if not isinstance(t := t_args[i], str):
                         if not isinstance(arg, t):
                             raise UserTypeError()
                     else:
                         check_value(arg, t)
             if t_kwargs:
                 for key, kwarg in kwargs.items():
-                    if not isinstance(arg, t := t_kwargs[key]):
+                    if not isinstance(t := t_kwargs[key], str):
                         if not isinstance(kwarg, t):
                             raise UserTypeError()
                     else:
