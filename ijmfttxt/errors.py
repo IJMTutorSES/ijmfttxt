@@ -6,7 +6,7 @@ def show_error():
     Tk().withdraw()
     showerror(
         title="Internal Error",
-        message="Leider ist in dem Programm ijmfttxt ein Fehler aufgetreten. Schicke bitte den vollständigen Traceback und dein Skript an tutor@ijm-online.de, damit der Fehler schnelsstmöglich behoben werden kann. Sobald eine neue Version von ijmfttxt zur Verfügung steht, wirst du über CASS benachrichtigt. Überprüfe zudem nochmal dein eigenes Programm, um sicherzugehen, dass der Fehler intern zustande gekommen ist und nicht durch falsches Benutzen von ijmfttxt.",
+        message="Leider ist im Modul ijmfttxt ein Fehler aufgetreten. Schicke bitte den vollständigen Traceback und dein Skript an tutor@ijm-online.de, damit der Fehler schnellstmöglich behoben werden kann. Sobald eine neue Version von ijmfttxt zur Verfügung steht, wirst du über CASS benachrichtigt. Überprüfe außerdem nochmal dein eigenes Programm, um sicherzugehen, dass der Fehler innerhalb des Moduls ijmfttxt zustande gekommen ist und nicht durch die falsche Benutzung von ijmfttxt.",
     )
 
 
