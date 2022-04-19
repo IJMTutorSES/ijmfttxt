@@ -1,5 +1,4 @@
 from setuptools import setup
-from ijmfttxt import __version__ as v
 
 
 def readme():
@@ -9,7 +8,7 @@ def readme():
 
 setup(
     name="ijmfttxt",
-    version=v,
+    version="1.9.4",
     description="Erweiterung zu ftrobopy",
     long_description=readme(),
     classifiers=[
