@@ -6,18 +6,14 @@
 """
 
 from __future__ import print_function
-from os import system
 import os
-import platform
 import sys
 import socket
 import threading
 import struct
 import time
-from math import sqrt, log
+from math import log
 from typing import List, Any
-
-from black import out
 
 from ..errors import error_handler, type_checker, UserValueError
 
@@ -2396,8 +2392,7 @@ class ftrobopy(ftTXT):
                     elif probe_socket(special_connection):
                         host = special_connection
                     else:
-                        # raise RuntimeError("Failed to connect to TXT-Controller")
-                        return
+                        raise RuntimeError("Failed to connect to TXT-Controller")
         if host[:6] == "direct":
             # check if running on FT-txt
             if (
