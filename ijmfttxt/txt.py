@@ -11,8 +11,9 @@ class TXT(ftrobopy.ftrobopy):
     """Klassen-Wrapper für ftrobopy Klasse von ftrobopy mit zusätzlicher Unterstützung des Fischertechnik RGB Gesture Sensors"""
 
     @error_handler
-    def __init__(self):
+    def __init__(self, debug: bool = False):
         super().__init__("auto")
+        self.debug = debug
 
     @error_handler
     def proximitySensor(self):
@@ -26,7 +27,7 @@ class TXT(ftrobopy.ftrobopy):
             """Klassenwrapper für Abstandssensor-Funktionalitäten der Apds Klasse"""
 
             def __init__(self, outer):
-                self.apds = Apds(outer)
+                self.apds = Apds(outer, outer.debug)
 
             @error_handler
             def turnOn(self):
@@ -61,7 +62,7 @@ class TXT(ftrobopy.ftrobopy):
             """Klassenwrapper für Lichtsensor-Funktionalitäten der Apds Klasse"""
 
             def __init__(self, outer):
-                self.apds = Apds(outer)
+                self.apds = Apds(outer, outer.debug)
 
             @error_handler
             def turnOn(self):
@@ -99,7 +100,7 @@ class TXT(ftrobopy.ftrobopy):
             """Klassenwrapper für Farbsensor-Funktionalitäten der Apds Klasse"""
 
             def __init__(self, outer):
-                self.apds = Apds(outer)
+                self.apds = Apds(outer, outer.debug)
 
             @error_handler
             def turnOn(self):
@@ -134,7 +135,7 @@ class TXT(ftrobopy.ftrobopy):
             """Klassenwrapper für Gestensensor-Funktionalitäten der Apds Klasse"""
 
             def __init__(self, outer):
-                self.apds = Apds(outer)
+                self.apds = Apds(outer, outer.debug)
 
             @error_handler
             def turnOn(self):
