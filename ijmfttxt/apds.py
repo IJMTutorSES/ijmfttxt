@@ -14,7 +14,7 @@ class Apds:
             cls._singelton = super().__new__(cls)
         return cls._singelton
 
-    def __init__(self, outer):
+    def __init__(self, outer, debug=False):
         self._TXT: ftrobopy.ftTXT = outer
         self.gesdata_up = [0 for _ in range(32)]
         self.gesdata_down = [0 for _ in range(32)]
@@ -33,37 +33,68 @@ class Apds:
         self.THRESHOLD = 10
         self.SENS1 = 15
         self.SENS2 = 50
-
+        
+        self.debug = debug
+        
         self.reset()
-
+    
+    def print_debug(self, message):
+        if self.debug:
+            print("#Apds# "+message)
+    
     def reset(self) -> bool:
+        self.print_debug("Reading ID")
         if self._read(ID)[0] != ID_VALUE:
             return False
+        self.print_debug("Setting ENABLE to OFF")
         self._write(ENABLE, OFF)
+        self.print_debug("Setting ATIME to default")
         self._write(ATIME, ATIME_DEFAULT)
+        self.print_debug("Setting WTIME to default")
         self._write(WTIME, WTIME_DEFAULT)
+        self.print_debug("Setting PPULSE to default")
         self._write(PPULSE, PPULSE_DEFAULT)
+        self.print_debug("Setting CONFIG1 to default")
         self._write(CONFIG1, CONFIG1_DEFAULT)
+        self.print_debug("Setting LDRIVE/PGAIN/AGAIN in CONTROL to default")
         self._write(CONTROL, LDRIVE_DEFAULT | PGAIN_DEFAULT | AGAIN_DEFAULT)
+        self.print_debug("Setting PILT to default")
         self._write(PILT, PILT_DEFAULT)
+        self.print_debug("Setting PIHT to default")
         self._write(PIHT, PIHT_DEFAULT)
+        self.print_debug("Setting AILT to default")
         self._write(AILTL, AILT_DEFAULT)
+        self.print_debug("Setting AIHT to default")
         self._write(AIHTL, AIHT_DEFAULT)
+        self.print_debug("Setting PERS to default")
         self._write(PERS, PERS_DEFAULT)
+        self.print_debug("Setting CONFIG2 to default")
         self._write(CONFIG2, CONFIG2_DEFAULT)
+        self.print_debug("Setting CONFIG3 to default")
         self._write(CONFIG3, CONFIG3_DEFAULT)
+        self.print_debug("Setting GPENTH to default")
         self._write(GPENTH, GPENTH_DEFAULT)
+        self.print_debug("Setting GEXTH to default")
         self._write(GEXTH, GEXTH_DEFAULT)
+        self.print_debug("Setting GCONF1 to default")
         self._write(GCONF1, GCONF1_DEFAULT)
+        self.print_debug("Setting GGAIN/GLDRIVE/GWTIME in GCONF2 to default")
         self._write(GCONF2, GGAIN_DEFAULT | GLDRIVE_DEFAULT | GWTIME_DEFAULT)
+        self.print_debug("Setting GPULSE to default")
         self._write(GPULSE, GPULSE_DEFAULT)
+        self.print_debug("Setting GCONF3 to default")
         self._write(GCONF3, GCONF3_DEFAULT)
         return True
 
     def __del__(self):
+        self.print_debug("Disabling gesture")
         self.disable_gesture()
+        self.print_debug("Disabling light")
         self.disable_light()
+        self.print_debug("Disabling proximity")
         self.disable_proximity()
+        self.print_debug("Setting ENABLE to OFF")
+        self._write(ENABLE, OFF)
 
     def _set(self, register: int, data: int, mask: int = 0, enable: bool = True):
         if mask != 0:
@@ -71,6 +102,7 @@ class Apds:
             val = (res & mask) | data
             return self._write(register, val)
         else:
+            self.print_debug("Reading given Register")
             res = self._read(register)[0]
             bit = res & data
             if bit != 0 and enable is False:
@@ -82,47 +114,71 @@ class Apds:
             return self._write(register, val)
 
     def enable_proximity(self):
+        self.print_debug("Setting PGAIN in CONTROL to default")
         self._set(CONTROL, PGAIN_DEFAULT, mask=PGAIN_MASK)
+        self.print_debug("Setting LDRIVE in CONTROL to default")
         self._set(CONTROL, LDRIVE_DEFAULT, mask=LDRIVE_MASK)
+        self.print_debug("Setting PON in ENABLE to True")
         self._set(ENABLE, ENABLE_PON, enable=True)
+        self.print_debug("Setting PEN in ENABLE to True")
         self._set(ENABLE, ENABLE_PEN, enable=True)
 
     def disable_proximity(self):
+        self.print_debug("Setting PEN in ENABLE to False")
         self._set(ENABLE, ENABLE_PEN, False)
 
     def get_proximity(self) -> int:
+        self.print_debug("Reading PDATA")
         return self._read(PDATA)[0]
 
     def enable_light(self):
+        self.print_debug("Setting AGAIN in CONTROL to default")
         self._set(CONTROL, AGAIN_DEFAULT, mask=AGAIN_MASK)
+        self.print_debug("Setting PON in ENABLE to True")
         self._set(ENABLE, ENABLE_PON, enable=True)
+        self.print_debug("Setting AEN in ENABLE to True")
         self._set(ENABLE, ENABLE_AEN, enable=True)
 
     def disable_light(self):
+        self.print_debug("Setting EAN in ENABLE to False")
         self._set(ENABLE, ENABLE_AEN, False)
 
     def get_rgbc(self) -> List[int]:
+        self.print_debug("READING CDATA")
         return self._read(CDATAL, register_len=2, data_len=8)
 
     def enable_gesture(self):
         self.reset_gesture_param()
+        self.print_debug("Setting WTIME to default")
         self._write(WTIME, WTIME_RESET)
+        self.print_debug("Setting PPULSE to default")
         self._write(PPULSE, G_PPULSE_DEFAULT)
+        self.print_debug("Setting LEDBOOST in CONFIG2 to 200")
         self._set(CONFIG2, LEDBOOST_200, mask=LEDBOOST_MASK)
+        self.print_debug("Setting GIEN in GCONF4 to True")
         self._set(GCONF4, GCONF4_GIEN, True)
+        self.print_debug("Setting GMODE in GCONF4 to True")
         self._set(GCONF4, GCONF4_GMODE, enable=True)
+        self.print_debug("Setting PON in ENABLE to True")
         self._set(ENABLE, ENABLE_PON, enable=True)
+        self.print_debug("Setting WEN in ENABLE to True")
         self._set(ENABLE, ENABLE_WEN, enable=True)
+        self.print_debug("Setting PEN in ENABLE to True")
         self._set(ENABLE, ENABLE_PEN, enable=True)
+        self.print_debug("Setting GEN in ENABLE to True")
         self._set(ENABLE, ENABLE_GEN, enable=True)
 
     def disable_gesture(self):
         self.reset_gesture_param()
+        self.print_debug("Setting GIEN in GCONF4 to False")
         self._set(GCONF4, GCONF4_GIEN, enable=False)
+        self.print_debug("Setting GMODE in GCONF4 to False")
         self._set(GCONF4, GCONF4_GMODE, enable=False)
+        self.print_debug("Setting GEN in ENABLE to False")
         self._set(ENABLE, ENABLE_GEN, enable=False)
 
     def is_gesture_available(self) -> bool:
+        self.print_debug("Reading GSTATUS")
         res = self._read(GSTATUS)[0]
         val = res & GSTATUS_GVALID
         if val == 0:
@@ -131,6 +187,7 @@ class Apds:
             return True
 
     def is_gesture_interrupt(self) -> bool:
+        self.print_debug("Reading STATUS")
         res = self._read(STATUS)[0]
         val = res & STATUS_GINT
         if val == 0:
@@ -154,16 +211,21 @@ class Apds:
         fifo_level = 0
         fifo_data = None
         motion = "None"
-
-        if not self.is_gesture_available() or self._read(ENABLE)[0] & ENABLE_PON == 0:
+        
+        aval = not self.is_gesture_available()
+        self.print_debug("Reading ENABLE")
+        if aval or self._read(ENABLE)[0] & ENABLE_PON == 0:
             return False
 
         while True:
             time.sleep(0.03)
+            self.print_debug("Reading GSTATUS")
             gstatus = self._read(GSTATUS)[0]
             if (gstatus & GSTATUS_GVALID) == GSTATUS_GVALID:
+                self.print_debug("Reading GFLVL")
                 fifo_level = self._read(GFLVL)[0]
                 if fifo_level > 0:
+                    self.print_debug("Reading GFIFO")
                     fifo_data = self._read(GFIFO, data_len=4 * fifo_level)
                     bytes_read = len(fifo_data)
                     if bytes_read >= 4:
@@ -315,18 +377,25 @@ class Apds:
             return False
         return True
 
-    def _write(self, register: int, data: int, debug=False) -> bool:
-        if self._TXT.i2c_write(ADR, register, data, debug):
+    def _write(self, register: int, data: int) -> bool:
+        if self._TXT.i2c_write(ADR, register, data, debug=self.debug):
             return True
         else:
             return False
 
     def _read(
-        self, register: int, register_len: int = 1, data_len: int = 1, debug=False
+        self, register: int, register_len: int = 1, data_len: int = 1
     ) -> List[int]:
-        buffer = self._TXT.i2c_read(ADR, register, data_len=data_len, debug=debug)
+        buffer = self._TXT.i2c_read(ADR, register, data_len=data_len, debug=self.debug)
         if register_len == 1:
-            return list(struct.unpack("<" + "B" * data_len, buffer))
+            self.print_debug("Unpacking with <" + "B"*data_len)
+            unpacked = struct.unpack("<" + "B" * data_len, buffer)
+            self.print_debug(f"Unpacked to {unpacked}")
+            return list(unpacked)
         elif register_len == 2:
-            return list(struct.unpack("<" + "H" * (data_len // 2), buffer))
+            self.print_debug("Unpacking with <" + "H" * (data_len//2))
+            unpacked = struct.unpack("<" + "H" * (data_len // 2), buffer)
+            self.print_debug(f"Unpacked to {unpacked}")
+            return list(unpacked)
         return [0] * (data_len // 2)
+
