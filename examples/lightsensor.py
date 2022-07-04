@@ -1,5 +1,3 @@
-import time
-
 import ijmfttxt
 
 # Initialize and setup Connection to TXT Controller
@@ -14,7 +12,7 @@ light_sensor.turnOn()
 # print for one minute every second the Brightness
 for _ in range(60):
     print(light_sensor.getBrightness())
-    time.sleep(1)
+    ijmfttxt.sleep(1)
 
 # turn the light sensor off
 light_sensor.turnOff()

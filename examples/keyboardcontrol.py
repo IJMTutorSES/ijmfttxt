@@ -1,7 +1,7 @@
 import ijmfttxt
 
 # Initialize and setup Connection to TXT Controller
-txt = ijmftxt.TXT()
+txt = ijmfttxt.TXT()
 
 # Initialize and start Listener for Keyboardinputs
 keyboard = ijmfttxt.Keyboard()

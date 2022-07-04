@@ -1,5 +1,3 @@
-import time
-
 import ijmfttxt
 
 
@@ -11,5 +9,5 @@ motor = txt.motor(1)
 
 # Set Moter speed to 5 for 3 seconds and then stop
 motor.setSpeed(5)
-time.sleep(3)
+ijmfttxt.sleep(3)
 motor.stop()

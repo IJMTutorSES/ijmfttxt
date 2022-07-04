@@ -16,7 +16,7 @@ for _ in range(60):
     print("grün", color.g)
     print("blau", color.b)
     print(color.name)
-    time.sleep(1)
+    ijmfttxt.sleep(1)
 
 # turn the rgb sensor off
 color_sensor.turnOff()

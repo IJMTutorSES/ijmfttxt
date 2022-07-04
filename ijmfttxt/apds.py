@@ -205,12 +205,12 @@ class Apds:
         self.near_count = 0
         self.far_count = 0
         self.state = 0
-        self.gesmotion = "None"
+        self.gesmotion = "NONE"
 
     def get_gesture(self) -> Union[bool, str]:
         fifo_level = 0
         fifo_data = None
-        motion = "None"
+        motion = "NONE"
         
         aval = not self.is_gesture_available()
         self.print_debug("Reading ENABLE")
@@ -338,13 +338,7 @@ class Apds:
         return False
 
     def decode_gesture(self) -> bool:
-        if self.state == "near":
-            self.gesmotion = "NEAR"
-            return True
-        elif self.state == "far":
-            self.gesmotion = "FAR"
-            return True
-        print(f"{self.ud_count=}; {self.lr_count=}")
+        self.print_debug(f"{self.ud_count=}; {self.lr_count=}")
         if self.ud_count == -1 and self.lr_count == 0:
             self.gesmotion = "UP"
         elif self.ud_count == 1 and self.lr_count == 0:
