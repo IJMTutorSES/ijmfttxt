@@ -2376,7 +2376,8 @@ class ftrobopy(ftTXT):
                     if probe_socket("127.0.0.1"):
                         host = "127.0.0.1"
                     else:
-                        raise RuntimeError("Failed to connect to TXT-Controller")
+                        print("Verbindung zu TXT-Controller fehlgeschlagen. Überprüfe ob dein Computer vollständig verbunden und der TXT-Controller eingeschalten ist.")
+                        sys.exit()
                 else:
                     host = "direct"
             # not running on TXT-controller, check standard ports (only in auto mode)
@@ -2392,7 +2393,8 @@ class ftrobopy(ftTXT):
                     elif probe_socket(special_connection):
                         host = special_connection
                     else:
-                        raise RuntimeError("Failed to connect to TXT-Controller")
+                        print("Verbindung zu TXT-Controller fehlgeschlagen. Überprüfe ob dein Computer vollständig verbunden und der TXT-Controller eingeschalten ist.")
+                        sys.exit()
         if host[:6] == "direct":
             # check if running on FT-txt
             if (
