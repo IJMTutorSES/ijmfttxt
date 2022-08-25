@@ -1,7 +1,7 @@
 import pynput
 from typing import Union, List
 
-from .errors import type_checker, UserValueError, error_handler
+from ijmfttxt.errors import type_checker, UserValueError, error_handler
 
 
 class Keyboard:
@@ -34,7 +34,7 @@ class Keyboard:
         try:
             result = 0
             for n in k:
-                if self._keys[n] != -1:
+                if n in self._keys and self._keys[n] != -1:
                     if self._keys[n] <= count or count == -1:
                         result += 1
                     if self._keys[n] <= count:
@@ -125,10 +125,13 @@ class Mouse:
 
 
 def _test():
+    print("Starting")
     keyboard = Keyboard()
     running = True
     while running:
-        if keyboard.isPressed("e"):
+        print("Testing")
+        if keyboard.isPressed("e", count=10):
+            print("Stopping")
             running = False
     keyboard.stop()
 
